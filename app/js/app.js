@@ -1,16 +1,31 @@
 'use strict';
 
-
-// Declare app level module which depends on filters, and services
-angular.module('myApp', [
+var yaocho = angular.module('yaocho', [
+  'url.manager',
   'ngRoute',
-  'myApp.filters',
-  'myApp.services',
-  'myApp.directives',
-  'myApp.controllers'
-]).
-config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});
-  $routeProvider.when('/view2', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2'});
-  $routeProvider.otherwise({redirectTo: '/view1'});
+  'restangular',
+  'LocalForageModule',
+  'ngSanitize',
+]);
+
+yaocho.value('version', '0.1');
+
+yaocho.config(['urlManagerProvider',
+function(urlManagerProvider) {
+  urlManagerProvider
+    .addUrlPattern('DocumentListView', '/', {
+      templateUrl: '/partials/document_list.html',
+      controller: 'DocumentListCtrl',
+    })
+    .addUrlPattern('DocumentView', '/kb/:slug', {
+      templateUrl: '/partials/document.html',
+      controller: 'DocumentCtrl',
+    })
+    .otherwise({
+      redirectTo: '/',
+    });
 }]);
+
+yaocho.config(function($locationProvider){
+    $locationProvider.html5Mode(true);
+});

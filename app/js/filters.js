@@ -1,10 +1,9 @@
 'use strict';
 
-/* Filters */
+var yaocho = angular.module('myApp.filters', []);
 
-angular.module('myApp.filters', []).
-  filter('interpolate', ['version', function(version) {
-    return function(text) {
-      return String(text).replace(/\%VERSION\%/mg, version);
-    };
-  }]);
+yaocho.filter('interpolate', ['version', function(version) {
+  return function(text) {
+    return String(text).replace(/\%VERSION\%/mg, version);
+  };
+}]);

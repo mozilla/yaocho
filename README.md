@@ -3,6 +3,11 @@
 Yaocho is an offline enabled open webapp to view knowledge base articles from
 Mozilla Support.
 
+Currently it depends on [an experimental branch of Mozilla Support][kitsune-branch], and is in
+heavy development.
+
+[kitsune-branch]: https://github.com/mythmon/kitsune/tree/yaocho-api
+
 ## Getting Started
 
 To get you started you can simply clone the yaocho repository and install the dependencies:

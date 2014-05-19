@@ -1,11 +1,13 @@
 'use strict';
 
-/* Controllers */
+var yaocho = angular.module('yaocho');
 
-angular.module('myApp.controllers', [])
-  .controller('MyCtrl1', ['$scope', function($scope) {
+yaocho.controller('DocumentListCtrl', ['$scope', 'Kitsune',
+function($scope, Kitsune) {
+    $scope.documents = Kitsune.all('kb/documents').getList().$object;
+}]);
 
-  }])
-  .controller('MyCtrl2', ['$scope', function($scope) {
-
-  }]);
+yaocho.controller('DocumentCtrl', ['$scope', '$routeParams', 'Kitsune',
+function($scope, $routeParams, Kitsune) {
+    $scope.document = Kitsune.one('kb/documents', $routeParams.slug).get().$object;
+}]);
