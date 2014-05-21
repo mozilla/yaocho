@@ -15,6 +15,7 @@
     "angular-resource": "~1.2.16",
     "angular-url-manager": "frenchtoast747/angular-url-manager",
     "restangular": "~1.4.0",
-    "angular-sanitize": "~1.2.16"
+    "angular-sanitize": "~1.2.16",
+    "es6-promise": "~1.0.0"
   }
 }

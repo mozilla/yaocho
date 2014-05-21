@@ -10,8 +10,8 @@ var yaocho = angular.module('yaocho', [
 
 yaocho.value('version', '0.1');
 
-yaocho.config(['urlManagerProvider',
-function(urlManagerProvider) {
+yaocho.config(['urlManagerProvider', '$localForageProvider', '$locationProvider',
+function(urlManagerProvider, $localForageProvider, $locationProvider) {
   urlManagerProvider
     .addUrlPattern('DocumentListView', '/', {
       templateUrl: '/partials/document_list.html',
@@ -24,8 +24,8 @@ function(urlManagerProvider) {
     .otherwise({
       redirectTo: '/',
     });
-}]);
 
-yaocho.config(function($locationProvider){
-    $locationProvider.html5Mode(true);
-});
+  $localForageProvider.setDriver('localStorageWrapper');
+
+  $locationProvider.html5Mode(true);
+}]);
