@@ -11,6 +11,14 @@
 </head>
 <body>
 
+  <nav ng-controller="MenuCtrl">
+    <ul>
+      <li class="back-button" ng-click="back()">←</li>
+      <li class="title" ng-click="scrollTop()" ng-bind="title"></li>
+      <li class="menu-button" ng-click="menu()"></li>
+    </ul>
+  </nav>
+
   <div ng-view></div>
 
   <script src="/bower_components/localforage/dist/localforage.js"></script>
@@ -26,6 +34,7 @@
   <script src="/bower_components/angular-url-manager/url-manager.js"></script>
 
   <script src="/js/app.js"></script>
+  <script src="/js/ui.js"></script>
   <script src="/js/utils.js"></script>
   <script src="/js/kitsune.js"></script>
   <script src="/js/controllers.js"></script>

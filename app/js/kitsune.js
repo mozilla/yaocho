@@ -66,9 +66,7 @@ function(showForSettings) {
     var parts = spec.split(',');
 
     parts.forEach(function(part) {
-      console.log('checking', part);
       if (allPlatforms.indexOf(part) >= 0) {
-        console.log('platform');
         platformFound = true;
         if (part == 'win') {
           platformMatch = platformMatch || !!enabledPlatforms['win'] ||
@@ -99,9 +97,6 @@ function(showForSettings) {
     var match = (browserMatch && !platformFound) ||
                 (platformMatch && !browserFound) ||
                 (platformMatch && browserMatch);
-    console.log(spec, "bm:", browserMatch, "bf:", browserFound,
-                "pm:", platformMatch, "pf:", platformFound,
-                "not:", not, "result:", match !== not);
     return match !== not;
   }
 
@@ -110,9 +105,6 @@ function(showForSettings) {
     link: function(scope, element, attrs) {
       if (!shouldShow(element.attr('data-for'))) {
         element.css('display', 'none');
-        console.log('hiding', element);
-      } else {
-        console.log('showing', element);
       }
     },
   };
