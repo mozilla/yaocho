@@ -1,0 +1,6 @@
+<ul class="topics list">
+    <li ng-repeat="topic in topics">
+        {{ topic }}
+        <alink view="DocumentListView" text="{{ topic.title }}" topic="{{ topic.slug }}" />
+    </li>
+</ul>
