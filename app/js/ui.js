@@ -17,7 +17,6 @@ function($scope, $rootScope) {
   };
 
   $rootScope.$on('title.change', function(ev, newTitle) {
-    console.log('setting title to', newTitle);
     $scope.title = newTitle;
   });
 }]);

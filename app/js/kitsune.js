@@ -119,8 +119,8 @@ function(Restangular, kitsuneApiBase) {
     // Deal with Django Rest Framework list responses.
     rc.addResponseInterceptor(function(data, operation, what, url, response, deferred) {
       var extractedData;
-      if (operation === "getList") {
-        extractedData = data.resules;
+      if (operation === "getList" && data.results) {
+        extractedData = data.results;
         extractedData.meta = {
           count: data.count,
           next: data.next,
@@ -137,12 +137,22 @@ function(Restangular, kitsuneApiBase) {
 yaocho.service('Kitsune', ['KitsuneRestangular',
 function(KitsuneRestangular) {
   this.documents = {
-    all: function() {
-      return KitsuneRestangular.all('kb/documents').getList();
+    all: function(opts) {
+      opts = opts || {};
+      return KitsuneRestangular.all('kb/').getList(opts);
     },
     get: function(slug) {
-      return KitsuneRestangular.one('kb/documents', slug).get();
+      return KitsuneRestangular.one('kb', slug).get();
     }
+  };
+
+  this.topics = {
+    all: function(product) {
+      return KitsuneRestangular.all('products').one(product, 'topics').getList();
+    },
+    one: function(product, topic) {
+      return KitsuneRestangular.one('products', 'topics', product, topic).get();
+    },
   };
 }]);
 
@@ -163,13 +173,24 @@ function(Kitsune, $localForage) {
   }
 
   this.documents = {
-    all: function() {
-      var key = 'documents.all';
-      return cachedCall(key, Kitsune, Kitsune.documents.all, []);
+    all: function(opts) {
+      var key = 'documents.all(' + JSON.stringify(opts) + ')';
+      return cachedCall(key, Kitsune, Kitsune.documents.all, [opts]);
     },
     get: function(slug) {
       var key = 'documents.one(' + slug + ')';
       return cachedCall(key, Kitsune, Kitsune.documents.get, [slug]);
     }
+  };
+
+  this.topics = {
+    all: function(product) {
+      var key = 'topics.all(' + product + ')';
+      return cachedCall(key, Kitsune, Kitsune.topics.all, [product]);
+    },
+    one: function(product, topic) {
+      var key = 'topics.one(' + product + ',' + topic + ')';
+      return cachedCall(key, Kitsune, Kitsune.topics.one, [product, topic]);
+    },
   };
 }]);
