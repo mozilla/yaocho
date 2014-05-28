@@ -26,3 +26,10 @@ function($rootScope, $scope, $routeParams, bindPromise, Kitsune, safeApply) {
     });
   });
 }]);
+
+yaocho.controller('TopicBrowserCtrl', ['$rootScope', '$scope', '$routeParams', 'bindPromise', 'Kitsune', 'userprefs',
+function($rootScope, $scope, $routeParams, bindPromise, Kitsune, userprefs) {
+  console.log('TopicBrowserCtrl');
+  $scope.topics = $routeParams.topics
+  Kitsune.topics.all(userprefs.product.slug)
+}]);

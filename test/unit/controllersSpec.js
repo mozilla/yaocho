@@ -3,18 +3,15 @@
 /* jasmine specs for controllers go here */
 
 describe('controllers', function(){
-  beforeEach(module('myApp.controllers'));
+  beforeEach(module('yaocho'));
+  beforeEach(module('yaocho.mocks'));
 
-
-  it('should ....', inject(function($controller) {
-    //spec body
-    var myCtrl1 = $controller('MyCtrl1', { $scope: {} });
-    expect(myCtrl1).toBeDefined();
-  }));
-
-  it('should ....', inject(function($controller) {
-    //spec body
-    var myCtrl2 = $controller('MyCtrl2', { $scope: {} });
-    expect(myCtrl2).toBeDefined();
-  }));
+  describe('TopicBrowser', function() {
+    it('should show top level topics when no topic given.', inject(function($controller, MockKitsune) {
+      var ctrl = $controller('TopicBrowserCtrl', {
+        $scope: {},
+        Kitsune: MockKitsune,
+      });
+    }));
+  });
 });
