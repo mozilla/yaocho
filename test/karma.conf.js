@@ -1,6 +1,5 @@
 module.exports = function(config){
   config.set({
-
     basePath : '../',
 
     files : [
@@ -24,21 +23,14 @@ module.exports = function(config){
 
     autoWatch : true,
 
-    frameworks: ['jasmine'],
+    frameworks: ['mocha', 'chai'],
 
     browsers : ['Firefox'],
 
     plugins : [
-            'karma-chrome-launcher',
             'karma-firefox-launcher',
-            'karma-jasmine',
-            'karma-junit-reporter'
+            'karma-mocha',
+            'karma-chai',
             ],
-
-    junitReporter : {
-      outputFile: 'test_out/unit.xml',
-      suite: 'unit'
-    }
-
   });
 };

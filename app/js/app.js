@@ -13,11 +13,16 @@ yaocho.value('version', '0.1');
 yaocho.config(['urlManagerProvider', '$localForageProvider', '$locationProvider',
 function(urlManagerProvider, $localForageProvider, $locationProvider) {
   urlManagerProvider
-    .addUrlPattern('TopicListView', '/:topics*?', {
+    .addUrlPattern('TopicBrowser', '/', {
+      templateUrl: '/partials/topic_browser.html',
+      controller: 'TopicBrowserCtrl',
+      topics: '',
+    })
+    .addUrlPattern('TopicBrowser', '/:topic/', {
       templateUrl: '/partials/topic_browser.html',
       controller: 'TopicBrowserCtrl',
     })
-    .addUrlPattern('DocumentView', '/:topics*/doc/:slug', {
+    .addUrlPattern('DocumentView', '/:topic*/doc/:slug', {
       templateUrl: '/partials/document.html',
       controller: 'DocumentCtrl',
     })
