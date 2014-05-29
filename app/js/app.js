@@ -22,7 +22,7 @@ function(urlManagerProvider, $localForageProvider, $locationProvider) {
       templateUrl: '/partials/topic_browser.html',
       controller: 'TopicBrowserCtrl',
     })
-    .addUrlPattern('DocumentView', '/:topic*/doc/:slug', {
+    .addUrlPattern('DocumentView', '/:topic/doc/:slug', {
       templateUrl: '/partials/document.html',
       controller: 'DocumentCtrl',
     })

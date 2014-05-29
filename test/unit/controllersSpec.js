@@ -1,5 +1,3 @@
-'use strict';
-
 describe('controllers', function(){
   beforeEach(module('yaocho'));
   beforeEach(module('yaocho.mocks'));

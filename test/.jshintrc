@@ -1,8 +1,11 @@
 {
   "globals": {
-    "expect": false,
-    "it": false,
+    "before": false,
     "describe": false,
-    "inject": false
+    "expect": false,
+    "inject": false,
+    "it": false,
+    "module": false,
+    "beforeEach": false
   }
 }

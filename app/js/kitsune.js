@@ -2,7 +2,8 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.value('kitsuneApiBase', 'http://kitsune/api');
+// yaocho.value('kitsuneApiBase', 'http://kitsune/api');
+yaocho.value('kitsuneApiBase', 'http://mythmon-kitsune.ngrok.com/api');
 
 
 yaocho.directive('wikiImage', ['$rootScope',
