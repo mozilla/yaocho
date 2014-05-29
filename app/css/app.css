@@ -47,7 +47,7 @@ nav .title {
   padding: 0.5em;
   -moz-box-flex: 1;
   flex-grow: 1;
-  flex-shring: 1;
+  flex-shrink: 1;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
