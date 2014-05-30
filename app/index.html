@@ -13,8 +13,8 @@
 
   <nav ng-controller="MenuCtrl">
     <ul>
-      <li class="back-button" ng-click="back()">←</li>
-      <li class="title" ng-click="scrollTop()" ng-bind="title"></li>
+      <li class="back-button collapse" ng-class="{collapse: backHidden()}" ng-click="back()">←</li>
+      <li class="title" ng-bind="title"></li>
       <li class="menu-button" ng-click="menu()"></li>
     </ul>
   </nav>

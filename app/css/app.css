@@ -41,6 +41,12 @@ nav .back-button {
   text-align: center;
   font-size: 1.2em;
   cursor: pointer;
+  transition: width 0.1s;
+  overflow: hidden;
+}
+
+nav .back-button.collapse {
+  width: 0;
 }
 
 nav .title {
