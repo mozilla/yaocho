@@ -22,9 +22,12 @@ function(urlManagerProvider, $localForageProvider, $locationProvider) {
       templateUrl: '/partials/topic_browser.html',
       controller: 'TopicBrowserCtrl',
     })
-    .addUrlPattern('DocumentView', '/:topic/doc/:slug', {
+    .addUrlPattern('DocumentView', '/doc/:slug', {
       templateUrl: '/partials/document.html',
       controller: 'DocumentCtrl',
+    })
+    .addUrlPattern('_', '/:locale/kb/:slug', {
+      redirectTo: '/doc/:slug',
     })
     .otherwise({
       redirectTo: '/',
