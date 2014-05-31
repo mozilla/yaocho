@@ -12,8 +12,8 @@ function($rootScope, $scope, $routeParams, bindPromise, Kitsune, safeApply) {
   });
 }]);
 
-yaocho.controller('TopicBrowserCtrl', ['$rootScope', '$scope', '$routeParams', 'bindPromise', 'Kitsune', 'userprefs',
-function($rootScope, $scope, $routeParams, bindPromise, Kitsune, userprefs) {
+yaocho.controller('TopicBrowserCtrl', ['$rootScope', '$scope', '$routeParams', 'bindPromise', 'Kitsune',
+function($rootScope, $scope, $routeParams, bindPromise, Kitsune) {
   var topicPath = $routeParams.topic || '';
   $scope.topics = [];
   $scope.documents = [];
@@ -28,12 +28,12 @@ function($rootScope, $scope, $routeParams, bindPromise, Kitsune, userprefs) {
 
   if (topicSlug !== null) {
     bindPromise($scope, 'documents',  Kitsune.documents.all({
-      product: userprefs.product.slug,
+      product: $rootScope.settings.product.slug,
       topic: topicSlug,
     }));
   }
 
-  Kitsune.topics.all(userprefs.product.slug)
+  Kitsune.topics.all($rootScope.settings.product.slug)
   .then(function(topics) {
     var topTopic;
     if (topicPath === '') {
@@ -43,7 +43,7 @@ function($rootScope, $scope, $routeParams, bindPromise, Kitsune, userprefs) {
       });
       topTopic = {slug: ''};
     } else {
-      var path = userprefs.product.slug + '/' + topicPath;
+      var path = $rootScope.settings.product.slug + '/' + topicPath;
       topTopic = topics.filter(function(topic) { return topic.path = path; })[0];
       $rootScope.$emit('title.change', topTopic.title);
       $scope.topics = topics.filter(function(topic) { return topic.parent === topTopic.slug; });

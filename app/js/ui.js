@@ -2,7 +2,7 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('MenuCtrl', ['$scope', '$rootScope', '$location',
+yaocho.controller('NavCtrl', ['$scope', '$rootScope', '$location',
 function($scope, $rootScope, $location) {
   var locationTrail = [];
 
@@ -14,7 +14,11 @@ function($scope, $rootScope, $location) {
 
   $scope.backHidden = function() {
     return locationTrail.length < 2;
-  }
+  };
+
+  $scope.showMenu = function() {
+    $rootScope.$emit('mainMenu.show');
+  };
 
   $rootScope.$on('title.change', function(ev, newTitle) {
     $scope.title = newTitle;
@@ -42,4 +46,26 @@ function($scope, $rootScope, $location) {
       }
     }
   });
+}]);
+
+yaocho.directive('alink', ['urlManager', '$location', 'safeApply',
+function(urlManager, $location, safeApply) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs){
+      var params = {};
+      angular.forEach(attrs, function(value, key){
+        if(key !== 'view' && key !== 'text' && key !== 'class' && key.charAt(0) !== '$'){
+          params[key] = value;
+        }
+      });
+      element.on('click', function(ev) {
+        ev.preventDefault();
+        safeApply(function() {
+          var url = urlManager.reverse(attrs.view, params);
+          $location.url(url);
+        });
+      });
+    }
+  }
 }]);

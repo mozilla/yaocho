@@ -41,12 +41,11 @@ nav .back-button {
   text-align: center;
   font-size: 1.2em;
   cursor: pointer;
-  transition: width 0.1s;
   overflow: hidden;
 }
 
 nav .back-button.collapse {
-  width: 0;
+  display: none;
 }
 
 nav .title {
@@ -59,9 +58,20 @@ nav .title {
   overflow: hidden;
 }
 
+nav .menu-button {
+  width: 32px;
+  background: url(/img/gear.svg) no-repeat center / 20px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 a {
     color: #00ABCD;
     text-decoration: none;
+}
+
+dl dd {
+  margin-left: 0;
 }
 
 .browser-list {

@@ -4,8 +4,11 @@ describe('controllers', function(){
 
   var scope;
 
-  beforeEach(inject(function($rootScope) {
+  beforeEach(inject(function($rootScope, $controller) {
     scope = $rootScope.$new();
+    $controller('SettingsCtrl', {
+      $scope: $rootScope.$new(),
+    });
   }));
 
   describe('TopicBrowser', function() {
