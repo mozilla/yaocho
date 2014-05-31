@@ -79,25 +79,39 @@ function(showForSettings) {
         }
 
       } else {
-        var match = /^(\w+)\d.*$/.exec(part);
-        if (match && showForSettings[match[1]]) {
+        var regexMatch = /^(=|>=)([^\d]+)([\d\.]*)$/.exec(part);
+        if (regexMatch && showForSettings[regexMatch[2]]) {
           browserFound = true;
-          var code = match[1];
-          var version = parseFloat(match[2]);
+          var op = regexMatch[1]
+          var browserCode = regexMatch[2];
+          var version = parseFloat(regexMatch[3]);
 
-          var settings = showForSettings[code];
-          if (settings.enabled &&
-              settings.version.min <= version &&
-              settings.version.max > version) {
-            browserMatch = true;
+          var settings = showForSettings[browserCode];
+          if (settings.enabled) {
+
+            if ((op === '>=' || op == '') && settings.version.min <= version) {
+              browserMatch = true;
+            } else if (op === '=' && settings.version.min <= version && settings.version.max > version) {
+              browserMatch = true;
+            }
+            if (op !== '>=' && op !== '=') {
+              console.warn('Unknown showfor op:', op);
+            }
           }
         }
       }
     });
 
+    /* This implements the right logic of:
+     * If any browsers are found, they must all match.
+     * If any platform is found, they must all match.
+     * If nothing is found, it will be shown.
+     */
     var match = (browserMatch && !platformFound) ||
                 (platformMatch && !browserFound) ||
-                (platformMatch && browserMatch);
+                (platformMatch && browserMatch) ||
+                (!platformFound && !browserFound);
+    // This inverts the match iff `not` is true.
     return match !== not;
   }
 
