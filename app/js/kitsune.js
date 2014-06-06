@@ -6,15 +6,15 @@ yaocho.value('kitsuneApiBase', 'http://kitsune/api');
 // yaocho.value('kitsuneApiBase', 'http://mythmon-kitsune.ngrok.com/api');
 
 
-yaocho.directive('wikiImage', ['$rootScope',
-function($rootScope) {
+yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase',
+function($rootScope, kitsuneBase) {
   return {
     restrict: 'C',
     link: function(scope, element, attrs) {
       var originalSrc = attrs.originalSrc;
-      var path = originalSrc.replace('//support.cdn.mozilla.net', '');
-      var workingPath = 'https://support.mozilla.org' + path;
-      element.attr('src', workingPath);
+      var path = originalSrc.replace('//support.cdn.mozilla.net', kitsuneBase);
+      var path = originalSrc.replace('//support.cdn.mozilla.net', 'https://support.mozilla.org');
+      element.attr('src', path);
     },
   };
 }]);
@@ -126,10 +126,10 @@ function(showForSettings) {
 }]);
 
 
-yaocho.factory('KitsuneRestangular', ['Restangular', 'kitsuneApiBase',
-function(Restangular, kitsuneApiBase) {
+yaocho.factory('KitsuneRestangular', ['Restangular', 'kitsuneBase',
+function(Restangular, kitsuneBase) {
   return Restangular.withConfig(function(rc) {
-    rc.setBaseUrl(kitsuneApiBase);
+    rc.setBaseUrl(kitsuneBase + '/api');
 
     // Deal with Django Rest Framework list responses.
     rc.addResponseInterceptor(function(data, operation, what, url, response, deferred) {
@@ -148,6 +148,7 @@ function(Restangular, kitsuneApiBase) {
     });
   });
 }]);
+
 
 yaocho.service('Kitsune', ['KitsuneRestangular',
 function(KitsuneRestangular) {
@@ -171,22 +172,9 @@ function(KitsuneRestangular) {
   };
 }]);
 
+
 yaocho.service('CachedKitsune', ['Kitsune', '$localForage',
 function(Kitsune, $localForage) {
-  function cachedCall(key, _this, func, args) {
-    return $localForage.getItem(key)
-    .then(function(data) {
-      if (data === null) {
-        var p = func.apply(_this, args);
-        p.then(function(data) {
-          $localForage.setItem(key, data);
-        });
-        return p;
-      } else {
-        return Promise.resolve(data);      }
-    });
-  }
-
   this.documents = {
     all: function(opts) {
       var key = 'documents.all(' + JSON.stringify(opts) + ')';
@@ -208,4 +196,84 @@ function(Kitsune, $localForage) {
       return cachedCall(key, Kitsune, Kitsune.topics.one, [product, topic]);
     },
   };
+}]);
+
+yaocho.service('KitsuneCorpus', ['$rootScope', 'Kitsune', 'KStorage', 'safeApply',
+function($rootScope, Kitsune, KStorage, safeApply) {
+
+  function update(obj1, obj2) {
+    safeApply(function() {
+      for (var key in obj2) {
+        if (key.indexOf('$') === 0) continue;
+        if (!obj2.hasOwnProperty(key)) continue;
+        obj1[key] = obj2[key];
+      }
+    })
+  }
+
+  this.getTopic = function(product, topic) {
+    if (topic === undefined) {
+      var key = 'topics:' + product;
+      return KStorage.getObject(key)
+      .catch(function cacheMiss() {
+        return Kitsune.topics.all(product)
+        .then(function(value) {
+          KStorage.putObject({key: key, value: value});
+          return obj;
+        });
+      });
+    } else {
+      var key = 'topics:' + product + '/' + topic
+      return KStorage.getObject(key)
+      .catch(function cacheMiss() {
+        return Kitsune.topics.one(product, topic)
+        .then(function(value) {
+          KStorage.putObject({key: key, value: value});
+          return value;
+        })
+      })
+    }
+  };
+
+  this.getDoc = function(slug) {
+    var doc = {
+      title: null,
+      slug: slug,
+      body: null,
+    };
+
+    var key = 'documents:' + slug;
+    KStorage.getObject(key)
+    .then(
+      function cacheHit(val) {
+        update(doc, val);
+      },
+      function cacheMiss() {
+        // supress reject;
+      })
+    .then(function() {
+      if (doc.title === null || doc.html === null) {
+        console.log('checking the network');
+        return Kitsune.documents.get(slug)
+      }
+    })
+    .then(function(val) {
+      if (val) {
+        update(doc, val);
+        return KStorage.putObject({key: key, value: {
+          title: doc.title,
+          slug: doc.slug,
+          html: doc.html,
+          products: doc.products,
+          topics: doc.topics,
+          locale: doc.locale,
+        }});
+      }
+    })
+    .catch(function(err) {
+      console.log('AHHHHH', err);
+    });
+
+    return doc;
+  }
 }]);

@@ -2,14 +2,15 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('DocumentCtrl', ['$rootScope', '$scope', '$routeParams', 'bindPromise', 'Kitsune', 'safeApply',
-function($rootScope, $scope, $routeParams, bindPromise, Kitsune, safeApply) {
-  bindPromise($scope, 'document', Kitsune.documents.get($routeParams.slug))
-  .then(function(doc) {
-    safeApply(function() {
+yaocho.controller('DocumentCtrl', ['$rootScope', '$scope', '$routeParams', 'KitsuneCorpus',
+function($rootScope, $scope, $routeParams, KitsuneCorpus) {
+  $scope.$watch('document', function(doc) {
+    if (doc.title) {
       $rootScope.$emit('title.change', doc.title);
-    });
-  });
+    }
+  }, true);
+
+  $scope.document = KitsuneCorpus.getDoc($routeParams.slug);
 }]);
 
 yaocho.controller('TopicBrowserCtrl', ['$rootScope', '$scope', '$routeParams', 'bindPromise', 'Kitsune',
