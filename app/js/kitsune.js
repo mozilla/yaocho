@@ -2,8 +2,8 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.value('kitsuneApiBase', 'http://kitsune/api');
-// yaocho.value('kitsuneApiBase', 'http://mythmon-kitsune.ngrok.com/api');
+yaocho.value('kitsuneBase', 'http://kitsune');
+// yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
 
 
 yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase',
@@ -167,36 +167,11 @@ function(KitsuneRestangular) {
       return KitsuneRestangular.all('products').one(product, 'topics').getList();
     },
     one: function(product, topic) {
-      return KitsuneRestangular.one('products', 'topics', product, topic).get();
+      return KitsuneRestangular.one('products', product).one('topic', topic).get();
     },
   };
 }]);
 
-
-yaocho.service('CachedKitsune', ['Kitsune', '$localForage',
-function(Kitsune, $localForage) {
-  this.documents = {
-    all: function(opts) {
-      var key = 'documents.all(' + JSON.stringify(opts) + ')';
-      return cachedCall(key, Kitsune, Kitsune.documents.all, [opts]);
-    },
-    get: function(slug) {
-      var key = 'documents.one(' + slug + ')';
-      return cachedCall(key, Kitsune, Kitsune.documents.get, [slug]);
-    }
-  };
-
-  this.topics = {
-    all: function(product) {
-      var key = 'topics.all(' + product + ')';
-      return cachedCall(key, Kitsune, Kitsune.topics.all, [product]);
-    },
-    one: function(product, topic) {
-      var key = 'topics.one(' + product + ',' + topic + ')';
-      return cachedCall(key, Kitsune, Kitsune.topics.one, [product, topic]);
-    },
-  };
-}]);
 
 yaocho.service('KitsuneCorpus', ['$rootScope', 'Kitsune', 'KStorage', 'safeApply',
 function($rootScope, Kitsune, KStorage, safeApply) {
@@ -211,69 +186,154 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     })
   }
 
-  this.getTopic = function(product, topic) {
-    if (topic === undefined) {
-      var key = 'topics:' + product;
-      return KStorage.getObject(key)
-      .catch(function cacheMiss() {
-        return Kitsune.topics.all(product)
-        .then(function(value) {
-          KStorage.putObject({key: key, value: value});
-          return obj;
-        });
-      });
+  this.getTopic = function(topicSlug) {
+    var product = $rootScope.settings.product.slug;
+    var topic = {
+      title: null,
+      slug: topicSlug,
+      product: product,
+      parent: null,
+      description: null,
+    };
+    var topicKeys = _.keys(topic);
+
+    if (['/', undefined, ''].indexOf(topicSlug) !== -1) {
+      topic.slug = '/';
+      topic.title = 'All Topics';
     } else {
-      var key = 'topics:' + product + '/' + topic
-      return KStorage.getObject(key)
-      .catch(function cacheMiss() {
-        return Kitsune.topics.one(product, topic)
-        .then(function(value) {
-          KStorage.putObject({key: key, value: value});
-          return value;
-        })
+      var key = 'topic:' + product + '/' + topicSlug;
+      KStorage.getObject(key)
+      .then(function cacheHit(val) {
+        if (val) {
+          update(topic, val);
+        }
+      })
+      .then(function checkCompleteness() {
+        if (topic.title === null || topic.description === null) {
+          return Kitsune.topics.one(product, topicSlug);
+        }
+      })
+      .then(function maybeUpdateCache(val) {
+        if (val) {
+          update(topic, val);
+          return KStorage.putObject({
+            key: key,
+            value: _.pick(topic, topicKeys),
+          })
+        }
       })
     }
+
+    return topic;
   };
 
-  this.getDoc = function(slug) {
-    var doc = {
-      title: null,
-      slug: slug,
-      body: null,
-    };
+  function updateCacheAllTopics(allTopics) {
+    var topicKeys = ['id', 'slug', 'title', 'parent', 'product'];
+    var parentSubtopicMap = {};
+    var promises = [];
 
-    var key = 'documents:' + slug;
-    KStorage.getObject(key)
-    .then(
-      function cacheHit(val) {
-        update(doc, val);
-      },
-      function cacheMiss() {
-        // supress reject;
-      })
+    allTopics.forEach(function(topic) {
+      parentSubtopicMap[topic.parent] = [];
+      parentSubtopicMap[topic.slug] = [];
+    });
+
+    allTopics.forEach(function(topic) {
+      parentSubtopicMap[topic.parent].push(topic);
+      promises.push(KStorage.putObject({
+        key: 'topic:' + topic.product + '/' + topic.slug,
+        value: _.pick(topic, topicKeys),
+      }));
+    });
+
+    for (var key in parentSubtopicMap) {
+      var subtopics = parentSubtopicMap[key];
+      if (key === null) {
+        key = '/';
+      }
+      var key = 'subtopics:' + key;
+      promises.push(KStorage.putSet(key, _.pluck(subtopics, 'slug'))
+      .then(console.log.bind(console, 'putting set', key, 'worked'),
+            console.error.bind(console, 'putting set', key, 'failed')));
+    }
+
+    return Promise.all(promises);
+  }
+
+  this.getSubTopics = function(parent) {
+    parent = parent || null;
+    var product = $rootScope.settings.product.slug;
+    var topics = [];
+
+    var key = 'subtopics:' + parent;
+    console.log('asking cache for', key);
+    KStorage.getSet(key)
+    .then(function(val) {
+      console.log('cache said', val);
+    })
     .then(function() {
-      if (doc.title === null || doc.html === null) {
-        console.log('checking the network');
-        return Kitsune.documents.get(slug)
+      if (topics.length === 0) {
+        console.log('asking network');
+        return Kitsune.topics.all(product);
       }
     })
     .then(function(val) {
       if (val) {
-        update(doc, val);
-        return KStorage.putObject({key: key, value: {
-          title: doc.title,
-          slug: doc.slug,
-          html: doc.html,
-          products: doc.products,
-          topics: doc.topics,
-          locale: doc.locale,
-        }});
+        console.log('network said', val);
+        safeApply(function() {
+          val.forEach(function(topic) {
+            if (topic.parent === parent) {
+              topics.push(topic);
+            }
+          });
+        })
+        return updateCacheAllTopics(val);
       }
     })
     .catch(function(err) {
-      console.log('AHHHHH', err);
-    });
+      console.error('AHHHH', err);
+    })
+
+    return topics;
+  };
+
+  this.getTopicDocs = function(slug) {
+    var docs = [];
+    return docs;
+  };
+
+  this.getDoc = function(slug, bare) {
+    var bare = bare || false;
+    var docKeys = ['title', 'slug', 'html','products', 'topics', 'locale'];
+    var doc = {
+      title: null,
+      slug: slug,
+      html: null,
+      products: [],
+      topics: [],
+      locale: $rootScope.settings.locale,
+    };
+    var docKeys = _.keys(doc);
+
+    var key = 'documents:' + slug;
+    KStorage.getObject(key)
+    .then(function cacheHit(val) {
+      update(doc, val);
+    })
+    .then(function checkCompleteness() {
+      if (doc.title === null || doc.html === null) {
+        return Kitsune.documents.get(slug)
+      }
+    })
+    .then(function maybeUpdateCache(val) {
+      if (val) {
+        update(doc, val);
+        return KStorage.putObject({
+          key: key,
+          value: _.pick(doc, docKeys),
+        })
+      }
+    })
 
     return doc;
-  }
+  };
 }]);

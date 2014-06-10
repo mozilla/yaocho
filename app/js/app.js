@@ -4,14 +4,13 @@ var yaocho = angular.module('yaocho', [
   'url.manager',
   'ngRoute',
   'restangular',
-  'LocalForageModule',
   'ngSanitize',
 ]);
 
 yaocho.value('version', '0.1');
 
-yaocho.config(['urlManagerProvider', '$localForageProvider', '$locationProvider',
-function(urlManagerProvider, $localForageProvider, $locationProvider) {
+yaocho.config(['urlManagerProvider', '$locationProvider',
+function(urlManagerProvider, $locationProvider) {
   urlManagerProvider
     .addUrlPattern('TopicBrowserRoot', '/', {
       templateUrl: '/partials/topic_browser.html',
@@ -38,8 +37,6 @@ function(urlManagerProvider, $localForageProvider, $locationProvider) {
     .otherwise({
       redirectTo: '/',
     });
-
-  $localForageProvider.setDriver('localStorageWrapper');
 
   $locationProvider.html5Mode(true);
 }]);

@@ -2,8 +2,8 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('SettingsCtrl', ['$scope', '$rootScope', '$localForage',
-function($scope, $rootScope, $localForage) {
+yaocho.controller('SettingsCtrl', ['$scope', '$rootScope',
+function($scope, $rootScope) {
   $rootScope.$emit('title.change', 'Settings');
 
   // These also serve as the defaults.
@@ -20,19 +20,19 @@ function($scope, $rootScope, $localForage) {
     return 'settings.' + key;
   }
 
-  angular.forEach($scope.settings, function(value, key) {
-    $localForage.getItem(keyName(key))
-    .then(function(storedValue) {
-      if (storedValue === null) {
-        $localForage.setItem(keyName(key), value);
-      } else {
-        $scope.settings[key] = storedValue;
-      }
-    })
-  });
+  // XXX update this.
+  // angular.forEach($scope.settings, function(value, key) {
+  //   $localForage.getItem(keyName(key))
+  //   .then(function(storedValue) {
+  //     if (storedValue === null) {
+  //       $localForage.setItem(keyName(key), value);
+  //     } else {
+  //       $scope.settings[key] = storedValue;
+  //     }
+  //   })
+  // });
 
   $scope.$watch('settings', function(newValue) {
-    console.log(newValue);
   });
 
   $rootScope.settings = $scope.settings;

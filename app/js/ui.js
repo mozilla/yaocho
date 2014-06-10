@@ -27,7 +27,6 @@ function($scope, $rootScope, $location) {
 
   $rootScope.$on('$locationChangeSuccess', function(ev, newAddress, oldAddress) {
     // Strip off trailing /s
-    console.log(newAddress, oldAddress);
     newAddress = newAddress.replace(/\/+$/, '');
     oldAddress = oldAddress.replace(/\/+$/, '');
 

@@ -11,7 +11,6 @@
     "angular-loader": "1.2.x",
     "angular-mocks": "~1.2.x",
     "html5-boilerplate": "~4.3.0",
-    "angular-localForage": "~0.2.3",
     "angular-resource": "~1.2.16",
     "angular-url-manager": "frenchtoast747/angular-url-manager",
     "restangular": "~1.4.0",

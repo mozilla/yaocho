@@ -31,14 +31,16 @@ function($rootScope) {
     };
   });
 
-  this.getObject = function(name) {
+  this.getObject = function(key) {
     return dbPromise
     .then(function(db) {
       var transaction = db.transaction('objects');
       return reqToPromise(transaction.objectStore('objects').get(name))
     })
     .then(function(obj) {
-      return obj.value;
+      if (obj) {
+        return obj.value;
+      }
     });
   }
 
@@ -50,34 +52,42 @@ function($rootScope) {
     })
   };
 
-  this.putSet = function(name, values) {
+  this.putSet = function(key, values) {
     return dbPromise
     .then(function(db) {
       var setValue = values.map(function(v) { return v.key; });
-      var transaction = db.transaction('sets');
+      var transaction = db.transaction('sets', 'readwrite');
       return reqToPromise(transaction.objectStore('sets').put({
-        name: name,
+        key: key,
         value: setValue,
       }))
     })
   };
 
-  this.getSet = function(name) {
+  this.getSet = function(key) {
     // this can't use reqToPromise for the first call because the
-    // transaction goes stale by the time the names get resolved.
+    // transaction goes stale by the time the promise .then would call.
     return dbPromise
     .then(function(db) {
       return new Promise(function(resolve, reject) {
         var transaction = db.transaction(['objects', 'sets']);
-        var req = transaction.objectStore('objects').get(name);
+        var req = transaction.objectStore('objects').get(key);
         req.onsuccess = function() {
-          var listOfNames = req.result.value;
-          resolve(Promise.all(listOfNames.map(function(name) {
-            return reqToPromise(transaction.objectStore('objects').get(name))
-            .then(function(obj) {
-              return obj.value;
-            });
-          })));
+          if (req.result === undefined) {
+            resolve(null);
+          } else {
+            console.log('getSet.onsuccess result:', req.result);
+            var listOfKeys = req.result.value;
+            resolve(Promise.all(listOfKeys.map(function(key) {
+              return reqToPromise(transaction.objectStore('objects').get(key))
+              .then(function(obj) {
+                return obj.value;
+              });
+            })));
+          }
+        }
+        req.onerror = function() {
+          reject(req.result);
         }
       });
     })
@@ -87,4 +97,6 @@ function($rootScope) {
   window.putObject = this.putObject;
   window.getSet = this.getSet;
   window.putSet = this.putSet;
+  window.ok = console.log.bind(console, 'ok');
+  window.er = console.error.bind(console, 'error');
 }]);
