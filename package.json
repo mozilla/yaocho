@@ -8,6 +8,10 @@
   "devDependencies": {
     "bower": "^1.3.1",
     "chai": "^1.9.1",
+    "event-stream": "^3.1.5",
+    "gulp": "^3.8.0",
+    "gulp-rename": "^1.2.0",
+    "gulp-rsvg": "^0.2.4",
     "karma": "~0.10",
     "karma-chai": "^0.1.0",
     "karma-mocha": "^0.1.3",
