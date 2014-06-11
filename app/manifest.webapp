@@ -1,10 +1,18 @@
 {
-    "name": "Mozilla Support",
-    "description": "Yaocho",
-    "developer": {
-        "name": "Mozilla",
-        "url": "http://mozilla.org"
-    },
-    "launch_path": "/",
-    "default_locale": "en"
+  "name": "Mozilla Support",
+  "description": "Yaocho",
+  "developer": {
+    "name": "Mozilla",
+    "url": "http://mozilla.org"
+  },
+  "launch_path": "/index.html",
+  "default_locale": "en",
+  "icons": {
+    "32": "/img/logo_32.png",
+    "60": "/img/logo_60.png",
+    "120": "/img/logo_120.png",
+    "128": "/img/logo_128.png",
+    "256": "/img/logo_256.png",
+    "512": "/img/logo_512.png"
+  }
 }

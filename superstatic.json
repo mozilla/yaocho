@@ -1,5 +1,5 @@
 {
-    "root": "app",
+    "root": "dist",
     "routes": {
         "bower_components/**": "bower_components/",
         "css/**": "css/",
