@@ -61,7 +61,7 @@ nav .title {
 
 nav .menu-button {
   width: 32px;
-  background: url(/img/gear.svg) no-repeat center / 20px;
+  background: url(/img/gear.png) no-repeat center / 20px;
   overflow: hidden;
   cursor: pointer;
 }

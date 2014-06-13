@@ -25,7 +25,7 @@ gulp.task('build.img.logo', function() {
 });
 
 gulp.task('build.img', ['build.img.logo'], function() {
-  return gulp.src('./app.img/gear.svg')
+  return gulp.src('./app/img/gear.svg')
     .pipe(rsvg())
     .pipe(gulp.dest('./dist/img/'));
 });
@@ -59,5 +59,5 @@ gulp.task('clean', function() {
     .pipe(rm());
 });
 
-gulp.task('build', ['build.copy', 'build.img.logo']);
+gulp.task('build', ['build.copy', 'build.img']);
 gulp.task('default', ['build']);

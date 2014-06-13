@@ -52,14 +52,14 @@ function($rootScope) {
     })
   };
 
-  this.putSet = function(key, values) {
+  this.putSet = function(key, setKeys) {
+    console.log('putSet', key, setKeys);
     return dbPromise
     .then(function(db) {
-      var setValue = values.map(function(v) { return v.key; });
       var transaction = db.transaction('sets', 'readwrite');
       return reqToPromise(transaction.objectStore('sets').put({
         key: key,
-        value: setValue,
+        value: setKeys,
       }))
     })
   };
@@ -71,18 +71,23 @@ function($rootScope) {
     .then(function(db) {
       return new Promise(function(resolve, reject) {
         var transaction = db.transaction(['objects', 'sets']);
-        var req = transaction.objectStore('objects').get(key);
+        var req = transaction.objectStore('sets').get(key);
         req.onsuccess = function() {
           if (req.result === undefined) {
             resolve(null);
           } else {
-            console.log('getSet.onsuccess result:', req.result);
-            var listOfKeys = req.result.value;
+            var listOfKeys = req.result.value.filter(function(key) { return !!key; });
             resolve(Promise.all(listOfKeys.map(function(key) {
-              return reqToPromise(transaction.objectStore('objects').get(key))
-              .then(function(obj) {
-                return obj.value;
-              });
+              if (key !== undefined) {
+                return reqToPromise(transaction.objectStore('objects').get(key))
+                .then(function(obj) {
+                  if (obj) {
+                    return obj.value;
+                  } else {
+                    return {title: key};
+                  }
+                });
+              }
             })));
           }
         }
@@ -93,10 +98,21 @@ function($rootScope) {
     })
   }
 
+  this.clear = function() {
+    return dbPromise
+    .then(function(db) {
+      var transaction = db.transaction(['objects', 'sets'], 'readwrite');
+      var setReq = transaction.objectStore('sets').clear();
+      var objReq = transaction.objectStore('objects').clear();
+      return Promise.all([setReq, objReq].map(reqToPromise));
+    });
+  }
+
   window.getObject = this.getObject;
   window.putObject = this.putObject;
   window.getSet = this.getSet;
   window.putSet = this.putSet;
+  window.clearKStorage = this.clear;
   window.ok = console.log.bind(console, 'ok');
   window.er = console.error.bind(console, 'error');
 }]);
