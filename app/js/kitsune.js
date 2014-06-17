@@ -2,8 +2,8 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.value('kitsuneBase', 'http://kitsune');
-// yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
+// yaocho.value('kitsuneBase', 'http://kitsune');
+yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
 
 
 yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase',
@@ -197,6 +197,8 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       parent: null,
       description: null,
     };
+    var topicKeys = _.keys(topic);
+    var found = false;
 
     if (['/', undefined, ''].indexOf(topicSlug) !== -1) {
       topic.slug = '/';
@@ -206,11 +208,12 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       KStorage.getObject(key)
       .then(function cacheHit(val) {
         if (val) {
+          found = true;
           update(topic, val);
         }
       })
       .then(function checkCompleteness() {
-        if (topic.title === null || topic.description === null) {
+        if (!found) {
           return Kitsune.topics.one(product, topicSlug);
         }
       })
@@ -219,8 +222,8 @@ function($rootScope, Kitsune, KStorage, safeApply) {
           update(topic, val);
           return KStorage.putObject({
             key: key,
-            value: topic,
-          })
+            value: _.pick(topic, topicKeys),
+          });
         }
       })
     }
@@ -257,7 +260,6 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       var keys = subtopics.map(function(st) {
         return 'topic:' + st.product + '/' + st.slug;
       });
-      console.log('going to put', key, keys);
       promises.push(KStorage.putSet(key, keys));
     }
 
@@ -285,38 +287,30 @@ function($rootScope, Kitsune, KStorage, safeApply) {
   this.getSubTopics = function(parent) {
     parent = parent || null;
     var product = $rootScope.settings.product.slug;
-    var topics = [];
+    var subtopics = [];
     var found = false;
 
+    function addSubtopics(newSubtopics) {
+      safeApply(function() {
+        newSubtopics.forEach(function(subtopic) {
+          subtopics.push(subtopic);
+        })
+      })
+    }
+
     var key = 'subtopics:' + parent;
-    console.log(key + ': asking the cache');
     KStorage.getSet(key)
     .then(function(val) {
-      console.log(key + ': cache said', val);
       if (val !== null) {
         found = true;
-        safeApply(function() {
-          val.forEach(function(topic) {
-            topics.push(topic);
-          })
-        })
+        addSubtopics(val);
       } else {
-        console.log(key, ': asking network');
         return Kitsune.topics.all(product);
       }
     })
     .then(function(val) {
       if (val) {
-        console.log(key + ': network said', val);
-        safeApply(function() {
-          val.forEach(function(topic) {
-            if (topic.parent === parent) {
-              console.log('pushing', topic);
-              topics.push(topic);
-            }
-          });
-          console.log('figured out:', topics)
-        })
+        addSubtopics(val.filter(function(topic) { return topic.parent === parent; }));
         return updateCacheAllTopics(val);
       }
     })
@@ -324,30 +318,31 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       console.error('AHHHH', err);
     })
 
-    return topics;
+    return subtopics;
   };
 
   this.getTopicDocs = function(slug) {
-    console.log('getTopicsDocs', slug);
     if (!slug) {
-      console.log('no docs for falsey slug', slug);
       return [];
     }
     var docs = [];
     var found = false;
 
-    var key = 'documents:' + slug;
-    console.log(key + ': asking the cache');
-    KStorage.getSet(key)
-    .then(function(val) {
-      console.log(key + ': cache said', val);
-      if (val !== null) {
-        found = true;
-        val.forEach(function(doc) {
+    function addDocs(newDocs) {
+      safeApply(function() {
+        newDocs.forEach(function(doc) {
           docs.push(doc);
         });
+      });
+    }
+
+    var key = 'documents:' + slug;
+    KStorage.getSet(key)
+    .then(function(val) {
+      if (val !== null) {
+        found = true;
+        addDocs(val);
       } else {
-        console.log(key + ': asking network');
         return Kitsune.documents.all({
           product: $rootScope.settings.product.slug,
           topic: slug,
@@ -356,12 +351,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     })
     .then(function(val) {
       if (val) {
-        console.log(key + ': network said', val);
-        safeApply(function() {
-          val.forEach(function(doc) {
-            docs.push(doc);
-          });
-        });
+        addDocs(val);
         return updateCacheDocs(key, docs);
       }
     })

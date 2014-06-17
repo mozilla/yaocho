@@ -9,9 +9,18 @@ var yaocho = angular.module('yaocho', [
 
 yaocho.value('version', '0.1');
 
-yaocho.config(['urlManagerProvider', '$locationProvider',
-function(urlManagerProvider, $locationProvider) {
+yaocho.config(['urlManagerProvider', '$locationProvider', '$compileProvider',
+function(urlManagerProvider, $locationProvider, $compileProvider) {
   urlManagerProvider
+    .addUrlPattern('_', '/index.html', {
+      redirectTo: '/',
+    })
+    /* This is a hack to deal with inter-document links.
+     * It would probably be better to rewrite these urls. */
+    .addUrlPattern('_', '/:locale/kb/:slug', {
+      redirectTo: '/doc/:slug',
+    })
+
     .addUrlPattern('TopicBrowserRoot', '/', {
       templateUrl: '/partials/topic_browser.html',
       controller: 'TopicBrowserCtrl',
@@ -28,15 +37,9 @@ function(urlManagerProvider, $locationProvider) {
     .addUrlPattern('DocumentView', '/doc/:slug', {
       templateUrl: '/partials/document.html',
       controller: 'DocumentCtrl',
-    })
-    /* This is a hack to deal with inter-document links.
-     * It would probably be better to rewrite these urls. */
-    .addUrlPattern('_', '/:locale/kb/:slug', {
-      redirectTo: '/doc/:slug',
-    })
-    .otherwise({
-      redirectTo: '/',
     });
 
   $locationProvider.html5Mode(true);
+
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|mailto|app):/);
 }]);

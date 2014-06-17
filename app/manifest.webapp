@@ -14,5 +14,6 @@
     "128": "/img/logo_128.png",
     "256": "/img/logo_256.png",
     "512": "/img/logo_512.png"
-  }
+  },
+  "version": "2"
 }

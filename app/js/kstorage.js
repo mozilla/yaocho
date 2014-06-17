@@ -35,7 +35,7 @@ function($rootScope) {
     return dbPromise
     .then(function(db) {
       var transaction = db.transaction('objects');
-      return reqToPromise(transaction.objectStore('objects').get(name))
+      return reqToPromise(transaction.objectStore('objects').get(key))
     })
     .then(function(obj) {
       if (obj) {
@@ -48,12 +48,11 @@ function($rootScope) {
     return dbPromise
     .then(function(db) {
       var transaction = db.transaction('objects', 'readwrite');
-      return reqToPromise(transaction.objectStore('objects').put(value))
+      return reqToPromise(transaction.objectStore('objects').put(value));
     })
   };
 
   this.putSet = function(key, setKeys) {
-    console.log('putSet', key, setKeys);
     return dbPromise
     .then(function(db) {
       var transaction = db.transaction('sets', 'readwrite');
@@ -107,12 +106,4 @@ function($rootScope) {
       return Promise.all([setReq, objReq].map(reqToPromise));
     });
   }
-
-  window.getObject = this.getObject;
-  window.putObject = this.putObject;
-  window.getSet = this.getSet;
-  window.putSet = this.putSet;
-  window.clearKStorage = this.clear;
-  window.ok = console.log.bind(console, 'ok');
-  window.er = console.error.bind(console, 'error');
 }]);

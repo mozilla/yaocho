@@ -4,7 +4,7 @@ var yaocho = angular.module('yaocho');
 
 yaocho.controller('SettingsCtrl', ['$scope', '$rootScope',
 function($scope, $rootScope) {
-  $rootScope.$emit('title.change', 'Settings');
+  $rootScope.$emit('ui.title.change', 'Settings');
 
   // These also serve as the defaults.
   $scope.settings = {

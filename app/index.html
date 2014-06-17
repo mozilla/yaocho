@@ -1,5 +1,5 @@
 <!DOCTYPE html>
- <html lang="en" ng-app="yaocho" class="no-js"> <!--<![endif]-->
+ <html lang="en" ng-app="yaocho"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   <title>Mozilla Support</title>
@@ -7,15 +7,14 @@
   <link rel="stylesheet" type="text/css" href="/bower_components/html5-boilerplate/css/normalize.css">
   <link rel="stylesheet" type="text/css" href="/bower_components/html5-boilerplate/css/main.css">
   <link rel="stylesheet" type="text/css" href="/css/app.css"/>
-  <script src="/bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
 </head>
 <body>
   <div ng-controller="SettingsCtrl"></div>
 
   <nav ng-controller="NavCtrl">
     <ul>
-      <li class="back-button collapse" ng-class="{collapse: backHidden()}" ng-click="back()">←</li>
-      <li class="title" ng-bind="title"></li>
+      <li class="back-button" ng-hide="ui.backHidden" ng-click="back()">←</li>
+      <li class="title" ng-bind="ui.current.title"></li>
       <li class="menu-button" alink view="Settings"></li>
     </ul>
   </nav>
