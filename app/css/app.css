@@ -5,25 +5,25 @@
 }
 
 body {
-    background: #FFFFFF;
-    font-size: 15px;
+  background: #FFFFFF;
+  font-size: 15px;
 }
 
 nav {
-    background: #2C393B;
-    color: #FFFFFF;
-    font-size: 1.1em;
-    font-weight: normal;
-    height: 40px;
-    margin: 0;
-    padding: 0;
+  background: #2C393B;
+  color: #FFFFFF;
+  font-size: 1.1em;
+  font-weight: normal;
+  height: 40px;
+  margin: 0;
+  padding: 0;
 }
 
 nav ul {
-    display: -moz-flex;
-    display: flex;
-    margin: 0;
-    padding: 0;
+  display: -moz-flex;
+  display: flex;
+  margin: 0;
+  padding: 0;
 }
 
 nav ul li {
@@ -64,8 +64,8 @@ nav .menu-button {
 }
 
 a {
-    color: #00ABCD;
-    text-decoration: none;
+  color: #00ABCD;
+  text-decoration: none;
 }
 
 dl dd {
@@ -83,44 +83,45 @@ dl dd {
   padding: 0.4em 0.5em;
 }
 
-.browser-list li.topic {
+.browser-list .topic {
   font-weight: bold;
 }
 
 .browser-list li a {
-    color: #000;
+  color: #000;
 }
 
 .sumo-document {
-    padding: 2vmin;
+  padding: 2vmin;
 }
 .sumo-document h1 {
-    border-bottom: 1px dotted #2C393B;
-    font-size: 1.5em;
-    font-weight: normal;
-    line-height: 1.2;
-    margin: 0;
-    padding-bottom: 0.5em;
+  border-bottom: 1px dotted #2C393B;
+  font-size: 1.5em;
+  font-weight: normal;
+  line-height: 1.2;
+  margin: 0;
+  padding-bottom: 0.5em;
 }
 
 .sumo-document .note {
-    background: #EAEAE7
-    border: 1px solid #F4F4F4;
-    margin: 4vmax;
-    padding: 4vmin;
+  background: #EAEAE7;
+  border: 1px solid #F4F4F4;
+  margin: 4vmax;
+  padding: 4vmin;
 }
+
 .sumo-document #toc {
-    display: none;
+  display: none;
 }
 
 .sumo-document img {
-    max-width: 95%;
+  max-width: 95%;
 }
 
 .sumo-document ul,
 .sumo-document ol {
-    margin: 0 0 0 1.5em;
-    padding: 0;
+  margin: 0 0 0 1.5em;
+  padding: 0;
 }
 
 .flash {
