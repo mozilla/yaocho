@@ -28,6 +28,18 @@ function($scope, $rootScope, $location) {
   });
 }]);
 
+yaocho.controller('FlashCtrl', ['$scope', '$rootScope', '$timeout',
+function($scope, $rootScope, $timeout) {
+  $scope.message = '';
+
+  $rootScope.$on('flash', function(ev, message) {
+    $scope.message = message;
+    $timeout(function() {
+      $scope.message = '';
+    }, 5000)
+  })
+}]);
+
 yaocho.directive('alink', ['urlManager', '$location', 'safeApply',
 function(urlManager, $location, safeApply) {
   return {

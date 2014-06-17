@@ -2,9 +2,10 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('SettingsCtrl', ['$scope', '$rootScope',
-function($scope, $rootScope) {
-  $rootScope.$emit('ui.title.change', 'Settings');
+yaocho.controller('SettingsCtrl', ['$scope', '$rootScope', 'KStorage',
+function($scope, $rootScope, KStorage, NavCtrl) {
+  $rootScope.ui = $rootScope.ui || {};
+  $rootScope.ui.current = {title: 'Settings'};
 
   // These also serve as the defaults.
   $scope.settings = {
@@ -13,27 +14,12 @@ function($scope, $rootScope) {
       title: 'Firefox OS',
     },
     locale: 'en-US',
-    browseMode: 'online',
   };
 
-  function keyName(key) {
-    return 'settings.' + key;
-  }
-
-  // XXX update this.
-  // angular.forEach($scope.settings, function(value, key) {
-  //   $localForage.getItem(keyName(key))
-  //   .then(function(storedValue) {
-  //     if (storedValue === null) {
-  //       $localForage.setItem(keyName(key), value);
-  //     } else {
-  //       $scope.settings[key] = storedValue;
-  //     }
-  //   })
-  // });
-
-  $scope.$watch('settings', function(newValue) {
-  });
+  $scope.clearCache = function() {
+    KStorage.clear();
+    $rootScope.$emit('flash', 'Cache cleared.');
+  };
 
   $rootScope.settings = $scope.settings;
 }]);
