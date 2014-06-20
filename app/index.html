@@ -1,11 +1,12 @@
 <!DOCTYPE html>
- <html lang="en" ng-app="yaocho"> <!--<![endif]-->
+<html lang="en" ng-app="yaocho" ng-csp>
 <head>
   <meta charset="utf-8">
   <title>Mozilla Support</title>
   <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="/bower_components/html5-boilerplate/css/normalize.css">
   <link rel="stylesheet" type="text/css" href="/bower_components/html5-boilerplate/css/main.css">
+  <link rel="stylesheet" type="text/css" href="/bower_components/angular/angular-csp.css">
   <link rel="stylesheet" type="text/css" href="/css/app.css"/>
 </head>
 <body>
@@ -21,7 +22,7 @@
 
   <div ng-view></div>
 
-  <div class="flash" ng-controller="FlashCtrl" ng-hide="message === ''">
+  <div class="flash" ng-controller="FlashCtrl" ng-hide="message.trim() === ''">
     {{ message }}
   </div>
 

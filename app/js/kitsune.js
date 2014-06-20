@@ -3,7 +3,9 @@
 var yaocho = angular.module('yaocho');
 
 // yaocho.value('kitsuneBase', 'http://kitsune');
-yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
+// yaocho.value('kitsuneBase', 'http://support.mozilla.org');
+// yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
+yaocho.value('kitsuneBase', 'https://support.allizom.org');
 
 
 yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase',
@@ -129,7 +131,7 @@ function(showForSettings) {
 yaocho.factory('KitsuneRestangular', ['Restangular', 'kitsuneBase',
 function(Restangular, kitsuneBase) {
   return Restangular.withConfig(function(rc) {
-    rc.setBaseUrl(kitsuneBase + '/api');
+    rc.setBaseUrl(kitsuneBase + '/api/1');
 
     // Deal with Django Rest Framework list responses.
     rc.addResponseInterceptor(function(data, operation, what, url, response, deferred) {
