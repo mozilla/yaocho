@@ -1,7 +1,0 @@
-{
-  "globalstrict": true,
-  "globals": {
-    "angular": false,
-    "Promise": false,
-  }
-}

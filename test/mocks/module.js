@@ -1,1 +1,0 @@
-angular.module('yaocho.mocks', []);
