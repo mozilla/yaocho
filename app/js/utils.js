@@ -55,4 +55,36 @@ function compileDirective($compile) {
       }
     );
   };
-}])
+}]);
+
+yaocho.factory('downloadImageAsDataURI', [
+function() {
+  return function(url) {
+    console.log('getting data uri for', url);
+    return new Promise(function(resolve, reject) {
+      var canvas = document.createElement('canvas');
+      var img = document.createElement('img');
+      img.setAttribute('crossorigin', 'anonymous');
+      console.log(img);
+
+      img.onload = function() {
+        console.log('img.onload');
+        var ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        console.log(canvas);
+        resolve(canvas.toDataURL('image/png'));
+      };
+
+      img.onerror = function(err) {
+        console.log('image.onerror');
+        log('server failed', err);
+        reject(err);
+      };
+
+      // Download the image.
+      img.src = url;
+    });
+  };
+}]);

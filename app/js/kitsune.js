@@ -8,15 +8,51 @@ var yaocho = angular.module('yaocho');
 yaocho.value('kitsuneBase', 'https://support.allizom.org');
 
 
-yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase',
-function($rootScope, kitsuneBase) {
+yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase', 'KStorage', 'safeApply', 'downloadImageAsDataURI',
+function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsDataURI) {
   return {
     restrict: 'C',
     link: function(scope, element, attrs) {
       var originalSrc = attrs.originalSrc;
-      var path = originalSrc.replace('//support.cdn.mozilla.net', kitsuneBase);
-      var path = originalSrc.replace('//support.cdn.mozilla.net', 'https://support.mozilla.org');
-      element.attr('src', path);
+      var path = originalSrc;
+      // Check if the url has a host, and if so, strip it off.
+      // In particular, check if there are double slashes near the beginning,
+      // and another slash later.
+      var match = path.match(/[^\/\/]*\/\/[^\/]+\/(.*)/);
+      if (match) {
+        path = match[1];
+      }
+
+      var key = 'image:' + path;
+      var log = console.log.bind(console, key);
+      log('asking cache');
+      KStorage.getObject(key)
+      .then(function(imageData) {
+        if (imageData) {
+          log('cache hit');
+          return imageData;
+        } else {
+          log('cache miss');
+          return downloadImageAsDataURI('https://support.mozilla.org' + path)
+          .then(function(imageData) {
+            KStorage.putObject({
+              key: key,
+              value: imageData,
+            })
+            .then(console.log.bind(console, 'put imagedata ok'), console.error.bind(console, 'put imagedata err'));
+            return imageData;
+          });
+        }
+      })
+      .then(function(imageData) {
+        safeApply(function() {
+          log('setting src');
+          element.attr('src', imageData);
+        });
+      })
+      .catch(function(err) {
+        console.error(err);
+      });
     },
   };
 }]);
