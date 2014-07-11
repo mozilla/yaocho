@@ -57,7 +57,7 @@ function compileDirective($compile) {
   };
 }]);
 
-yaocho.factory('downloadImageAsDataURI', [
+yaocho.factory('downloadImageAsBlob', [
 function() {
   return function(url) {
     console.log('getting data uri for', url);
@@ -74,7 +74,7 @@ function() {
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
         console.log(canvas);
-        resolve(canvas.toDataURL('image/png'));
+        canvas.toBlob(resolve);
       };
 
       img.onerror = function(err) {

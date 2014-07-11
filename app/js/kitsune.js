@@ -8,8 +8,8 @@ var yaocho = angular.module('yaocho');
 yaocho.value('kitsuneBase', 'https://support.allizom.org');
 
 
-yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase', 'KStorage', 'safeApply', 'downloadImageAsDataURI',
-function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsDataURI) {
+yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase', 'KStorage', 'safeApply', 'downloadImageAsBlob',
+function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsBlob) {
   return {
     restrict: 'C',
     link: function(scope, element, attrs) {
@@ -33,7 +33,7 @@ function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsDataURI) {
           return imageData;
         } else {
           log('cache miss');
-          return downloadImageAsDataURI('https://support.mozilla.org' + path)
+          return downloadImageAsBlob('https://support.mozilla.org' + path)
           .then(function(imageData) {
             KStorage.putObject({
               key: key,
@@ -47,7 +47,7 @@ function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsDataURI) {
       .then(function(imageData) {
         safeApply(function() {
           log('setting src');
-          element.attr('src', imageData);
+          element.attr('src', URL.createObjectURL(imageData));
         });
       })
       .catch(function(err) {
