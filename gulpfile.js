@@ -1,11 +1,14 @@
 var fs = require('fs.extra');
 
+var nomnom = require('nomnom');
+
 var gulp = require('gulp');
-var rsvg = require('gulp-rsvg');
 var eventStream = require('event-stream');
-var rename = require('gulp-rename');
 var htmlSrc = require('gulp-html-src');
+var rename = require('gulp-rename');
 var rm = require('gulp-rm');
+var rsvg = require('gulp-rsvg');
+var webserver = require('gulp-webserver');
 var zip = require('gulp-zip');
 
 gulp.task('watch', ['build'], function() {
@@ -59,5 +62,15 @@ gulp.task('clean', function() {
     .pipe(rm());
 });
 
+gulp.task('server', ['build'], function() {
+  var args = nomnom.option('port', {default: 8000}).parse();
+  gulp.src('dist')
+    .pipe(webserver({
+      port: args.port,
+      fallback: 'index.html',
+    }));
+});
+
+gulp.task('dev', ['build', 'watch', 'server']);
 gulp.task('build', ['build.copy', 'build.img']);
 gulp.task('default', ['build']);
