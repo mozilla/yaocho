@@ -60,31 +60,26 @@ function compileDirective($compile) {
 yaocho.factory('downloadImageAsBlob', [
 function() {
   return function(url) {
-    console.log('getting data uri for', url);
     return new Promise(function(resolve, reject) {
-      var canvas = document.createElement('canvas');
-      var img = document.createElement('img');
-      img.setAttribute('crossorigin', 'anonymous');
-      console.log(img);
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.responseType = "arraybuffer";
 
-      img.onload = function() {
-        console.log('img.onload');
-        var ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        console.log(canvas);
-        canvas.toBlob(resolve);
+      xhr.onload = function(e) {
+        console.log('xhr', this.response);
+        var arrayBufferView = new Uint8Array(this.response);
+        console.log('xhr', arrayBufferView);
+        var blob = new Blob([arrayBufferView], {type: "image/png"});
+        console.log('xhr', blob);
+        resolve(blob);
+
       };
 
-      img.onerror = function(err) {
-        console.log('image.onerror');
-        log('server failed', err);
-        reject(err);
+      xhr.onerror = function(e) {
+        reject(e);
       };
 
-      // Download the image.
-      img.src = url;
+      xhr.send();
     });
   };
 }]);
