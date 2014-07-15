@@ -63,9 +63,13 @@ gulp.task('clean', function() {
 });
 
 gulp.task('server', ['build'], function() {
-  var args = nomnom.option('port', {default: 8000}).parse();
+  var args = nomnom
+   .option('port', {default: 8000})
+   .option('host', {default: 'localhost'})
+   .parse();
   gulp.src('dist')
     .pipe(webserver({
+      host: args.host,
       port: args.port,
       fallback: 'index.html',
     }));
