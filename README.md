@@ -3,6 +3,15 @@
 Yaocho is an offline enabled open webapp to view knowledge base articles from
 Mozilla Support.
 
+## TL;DR
+
+```
+git clone https://github.com/mozilla/yaocho.git
+cd yaocho
+npm install
+gulp dev
+```
+
 ## Getting Started
 
 To get you started you can simply clone the yaocho repository and install the dependencies:
