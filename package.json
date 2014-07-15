@@ -16,7 +16,7 @@
     "gulp-rm": "^0.2.0",
     "gulp-rsvg": "^0.2.4",
     "gulp-zip": "^0.3.4",
-    "karma": "~0.10",
+    "karma": "~0.12",
     "karma-chai": "^0.1.0",
     "karma-mocha": "^0.1.3",
     "mocha": "^1.20.0",
