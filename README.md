@@ -18,6 +18,9 @@ To get you started you can simply clone the yaocho repository and install the de
 
 ### Prerequisites
 
+For Debian systems you will need the package `librsvg2-dev`. For other systems
+you will need the equivilent package.
+
 You need git to clone the yaocho repository. You can get it from
 [http://git-scm.com/](http://git-scm.com/).
 
