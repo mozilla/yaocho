@@ -40,15 +40,21 @@ function($rootScope) {
     .then(function(obj) {
       if (obj) {
         return obj.value;
+      } else {
+        throw new Error('Cache miss for getObject(' + key + ')');
       }
     });
   }
 
-  this.putObject = function(value) {
+  this.putObject = function(key, value) {
+    var obj = {
+      key: key,
+      value: value,
+    };
     return dbPromise
     .then(function(db) {
       var transaction = db.transaction('objects', 'readwrite');
-      return reqToPromise(transaction.objectStore('objects').put(value));
+      return reqToPromise(transaction.objectStore('objects').put(obj));
     })
   };
 
@@ -59,7 +65,7 @@ function($rootScope) {
       return reqToPromise(transaction.objectStore('sets').put({
         key: key,
         value: setKeys,
-      }))
+      }));
     })
   };
 
@@ -73,7 +79,7 @@ function($rootScope) {
         var req = transaction.objectStore('sets').get(key);
         req.onsuccess = function() {
           if (req.result === undefined) {
-            resolve(null);
+            reject(new Error('Cache miss for getSet(' + key + ')'));
           } else {
             var listOfKeys = req.result.value.filter(function(key) { return !!key; });
             resolve(Promise.all(listOfKeys.map(function(key) {

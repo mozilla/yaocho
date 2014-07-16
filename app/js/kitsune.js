@@ -24,34 +24,17 @@ function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsBlob) {
       }
 
       var key = 'image:' + path;
-      var log = console.log.bind(console, key);
-      log('asking cache');
       KStorage.getObject(key)
-      .then(function(imageData) {
-        if (imageData) {
-          log('cache hit');
-          return imageData;
-        } else {
-          log('cache miss');
-          return downloadImageAsBlob('https://support.mozilla.org' + path)
-          .then(function(imageData) {
-            KStorage.putObject({
-              key: key,
-              value: imageData,
-            })
-            .then(console.log.bind(console, 'put imagedata ok'), console.error.bind(console, 'put imagedata err'));
-            return imageData;
-          });
-        }
+      .catch(function() {
+        var p = downloadImageAsBlob('https://support.mozilla.org' + path)
+        p.then(KStorage.putObject.bind(KStorage, key));
+        return p;
       })
       .then(function(imageData) {
-        safeApply(function() {
-          log('setting src');
-          element.attr('src', URL.createObjectURL(imageData));
-        });
+        element.attr('src', URL.createObjectURL(imageData));
       })
       .catch(function(err) {
-        console.error(err);
+        console.error('wikiImage error', 'key=' + key, err);
       });
     },
   };
@@ -243,27 +226,20 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       topic.title = 'All Topics';
     } else {
       var key = 'topic:' + product + '/' + topicSlug;
-      KStorage.getObject(key)
-      .then(function cacheHit(val) {
-        if (val) {
-          found = true;
-          update(topic, val);
-        }
+      KStorage.getObject(key, ['title'])
+      .catch(function() {
+        var p = Kitsune.topics.one(product, topicSlug)
+        p.then(function(val) {
+          KStorage.putObject(key, _.pick(topic, topicKeys));
+        });
+        return p;
       })
-      .then(function checkCompleteness() {
-        if (!found) {
-          return Kitsune.topics.one(product, topicSlug);
-        }
+      .then(function(val) {
+        update(topic, val);
       })
-      .then(function maybeUpdateCache(val) {
-        if (val) {
-          update(topic, val);
-          return KStorage.putObject({
-            key: key,
-            value: _.pick(topic, topicKeys),
-          });
-        }
-      })
+      .catch(function(err) {
+        console.error('getTopic error', 'key=' + key, err);
+      });
     }
 
     return topic;
@@ -283,10 +259,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       parentSubtopicMap[topic.parent].push(topic);
       var key = 'topic:' + topic.product + '/' + topic.slug;
       keys.push(key);
-      promises.push(KStorage.putObject({
-        key: key,
-        value: _.pick(topic, topicKeys),
-      }));
+      promises.push(KStorage.putObject(key, _.pick(topic, topicKeys)));
     });
 
     for (var key in parentSubtopicMap) {
@@ -311,10 +284,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     docs.forEach(function(doc) {
       var key = 'document:' + doc.slug;
       keys.push(key);
-      promises.push(KStorage.putObject({
-        key: key,
-        value: _.pick(doc, documentKeys),
-      }))
+      promises.push(KStorage.putObject(key, _.pick(doc, documentKeys)));
     });
 
     promises.push(KStorage.putSet(key, keys));
@@ -338,22 +308,16 @@ function($rootScope, Kitsune, KStorage, safeApply) {
 
     var key = 'subtopics:' + parent;
     KStorage.getSet(key)
-    .then(function(val) {
-      if (val !== null) {
-        found = true;
-        addSubtopics(val);
-      } else {
-        return Kitsune.topics.all(product);
-      }
+    .catch(function() {
+      var p = Kitsune.topics.all(product);
+      p.then(updateCacheAllTopics);
+      return p;
     })
     .then(function(val) {
-      if (val) {
-        addSubtopics(val.filter(function(topic) { return topic.parent === parent; }));
-        return updateCacheAllTopics(val);
-      }
+      addSubtopics(val.filter(function(topic) { return topic.parent === parent; }));
     })
     .catch(function(err) {
-      console.error('AHHHH', err);
+      console.error('getSubTopics error', 'key=' + key, err);
     })
 
     return subtopics;
@@ -376,32 +340,25 @@ function($rootScope, Kitsune, KStorage, safeApply) {
 
     var key = 'documents:' + slug;
     KStorage.getSet(key)
-    .then(function(val) {
-      if (val !== null) {
-        found = true;
-        addDocs(val);
-      } else {
-        return Kitsune.documents.all({
-          product: $rootScope.settings.product.slug,
-          topic: slug,
-        });
-      }
+    .catch(function() {
+      var p = Kitsune.documents.all({
+        product: $rootScope.settings.product.slug,
+        topic: slug,
+      });
+      p.then(updateCacheDocs.bind(null, key));
+      return p
     })
     .then(function(val) {
-      if (val) {
-        addDocs(val);
-        return updateCacheDocs(key, docs);
-      }
+      addDocs(val);
     })
     .catch(function(err) {
-      console.error('AHHHHHH', err);
+      console.error('getTopicDocs error', 'key=' + key, err);
     });
 
     return docs;
   };
 
-  this.getDoc = function(slug, bare) {
-    var bare = bare || false;
+  this.getDoc = function(slug) {
     var doc = {
       title: null,
       slug: slug,
@@ -413,24 +370,17 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     var docKeys = _.keys(doc);
 
     var key = 'documents:' + slug;
-    KStorage.getObject(key)
-    .then(function cacheHit(val) {
+    KStorage.getObject(key, ['title', 'html'])
+    .catch(function(err) {
+      var p = Kitsune.documents.get(slug);
+      p.then(function(val) {
+        KStorage.putObject(key, _.pick(val, docKeys));
+      });
+      return p;
+    })
+    .then(function(val) {
       update(doc, val);
-    })
-    .then(function checkCompleteness() {
-      if (doc.title === null || doc.html === null) {
-        return Kitsune.documents.get(slug)
-      }
-    })
-    .then(function maybeUpdateCache(val) {
-      if (val) {
-        update(doc, val);
-        return KStorage.putObject({
-          key: key,
-          value: _.pick(doc, docKeys),
-        })
-      }
-    })
+    });
 
     return doc;
   };

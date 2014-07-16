@@ -66,13 +66,9 @@ function() {
       xhr.responseType = "arraybuffer";
 
       xhr.onload = function(e) {
-        console.log('xhr', this.response);
         var arrayBufferView = new Uint8Array(this.response);
-        console.log('xhr', arrayBufferView);
         var blob = new Blob([arrayBufferView], {type: "image/png"});
-        console.log('xhr', blob);
         resolve(blob);
-
       };
 
       xhr.onerror = function(e) {
