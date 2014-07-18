@@ -3,7 +3,7 @@
 var yaocho = angular.module('yaocho');
 
 yaocho.controller('SettingsCtrl', ['$scope', '$rootScope', 'KStorage',
-function($scope, $rootScope, KStorage, NavCtrl) {
+function($scope, $rootScope, KStorage) {
   $rootScope.ui = $rootScope.ui || {};
   $rootScope.ui.current = {title: 'Settings'};
 
