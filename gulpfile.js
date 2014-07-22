@@ -1,10 +1,19 @@
 var fs = require('fs.extra');
+var path = require('path');
 
+var acorn = require('acorn');
+var acornWalk = require('acorn/util/walk');
 var nomnom = require('nomnom');
+var request = require('request');
+var vinyl = require('vinyl');
 
+var concat = require('gulp-concat');
+var download = require('gulp-download');
+var es = require('event-stream');
 var gulp = require('gulp');
-var eventStream = require('event-stream');
+var header = require('gulp-header');
 var htmlSrc = require('gulp-html-src');
+var l10nExtract = require('gulp-l10n-extract');
 var rename = require('gulp-rename');
 var rm = require('gulp-rm');
 var rsvg = require('gulp-rsvg');
@@ -17,7 +26,7 @@ gulp.task('watch', ['build'], function() {
 
 gulp.task('build.img.logo', function() {
   var sizes = [32, 60, 90, 120, 128, 256, 512];
-  return eventStream.merge.apply(null, sizes.map(function(size) {
+  return es.merge.apply(null, sizes.map(function(size) {
     return gulp.src('./app/img/logo.svg')
       .pipe(rsvg({width: size, height: size}))
       .pipe(rename(function(path) {
@@ -34,7 +43,7 @@ gulp.task('build.img', ['build.img.logo'], function() {
 });
 
 gulp.task('build.copy', function() {
-  return eventStream.merge(
+  return es.merge(
     gulp.src('app/index.html')
       .pipe(htmlSrc())
       .pipe(gulp.dest('dist')),
@@ -76,5 +85,38 @@ gulp.task('server', ['build'], function() {
 });
 
 gulp.task('dev', ['build', 'watch', 'server']);
-gulp.task('build', ['build.copy', 'build.img']);
+gulp.task('build', ['build.copy', 'build.img', 'l10n.get']);
 gulp.task('default', ['build']);
+
+gulp.task('l10n.extract', function() {
+  return gulp.src(['app/js/**/*.js', 'app/index.html', 'app/partials/**/*.html'])
+    .pipe(l10nExtract('yaocho'))
+    .pipe(gulp.dest('locale/templates/LC_MESSAGES/'));
+});
+
+// I stole this from Kitsune's list of languages.
+var languages = [
+  'ar', 'bg', 'bn-BD', 'bn-IN', 'bs', 'ca', 'cs', 'da', 'de', 'el', 'en-US',
+  'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi-IN', 'hr', 'hu', 'id', 'it', 'ja',
+  'km', 'ko', 'lt', 'ml', 'ne-NP', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro',
+  'ru', 'si', 'sk', 'sl', 'sq', 'sr-Cyrl', 'sv', 'ta', 'ta-LK', 'te', 'th',
+  'tr', 'uk', 'vi', 'zh-CN', 'zh-TW',
+];
+
+gulp.task('l10n.get', function() {
+  var kitsuneUrl = 'http://kitsune/{lang}/jsi18n-yaocho/';
+
+  return es.readArray(languages)
+    .pipe(es.through(function(lang) {
+      var url = kitsuneUrl.replace('{lang}', lang);
+      var file = new vinyl({
+        path: lang + '.js',
+        contents: request.get(url),
+      });
+      this.emit('data', file);
+    }))
+    .pipe(gulp.dest('dist/l10n'))
+    .on('error', function(err) { console.error(err.stack); });
+});
+
+gulp.task('l10n', ['l10n.get', 'l10n.extract']);

@@ -9,7 +9,7 @@ function($scope, $rootScope, $location) {
   $rootScope.ui = {
     backHidden: true,
     current: {
-      title: "Mozilla Support",
+      title: gettext('Mozilla Support'),
     }
   };
 

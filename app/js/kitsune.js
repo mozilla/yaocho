@@ -3,9 +3,9 @@
 var yaocho = angular.module('yaocho');
 
 // yaocho.value('kitsuneBase', 'http://kitsune');
-// yaocho.value('kitsuneBase', 'http://support.mozilla.org');
+yaocho.value('kitsuneBase', 'http://support.mozilla.org');
 // yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
-yaocho.value('kitsuneBase', 'https://support.allizom.org');
+// yaocho.value('kitsuneBase', 'https://support.allizom.org');
 
 
 yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase', 'KStorage', 'safeApply', 'downloadImageAsBlob',
@@ -223,7 +223,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
 
     if (['/', undefined, ''].indexOf(topicSlug) !== -1) {
       topic.slug = '/';
-      topic.title = 'All Topics';
+      topic.title = gettext('All Topics');
     } else {
       var key = 'topic:' + product + '/' + topicSlug;
       KStorage.getObject(key, ['title'])

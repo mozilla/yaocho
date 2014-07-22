@@ -7,6 +7,8 @@ function($scope, $rootScope, KStorage, NavCtrl) {
   $rootScope.ui = $rootScope.ui || {};
   $rootScope.ui.current = {title: 'Settings'};
 
+  $scope.clearCacheText = gettext('Clear Cache');
+
   // These also serve as the defaults.
   $scope.settings = {
     product: {
@@ -18,7 +20,7 @@ function($scope, $rootScope, KStorage, NavCtrl) {
 
   $scope.clearCache = function() {
     KStorage.clear();
-    $rootScope.$emit('flash', 'Cache cleared.');
+    $rootScope.$emit('flash', gettext('Cache cleared.'));
   };
 
   $rootScope.settings = $scope.settings;
