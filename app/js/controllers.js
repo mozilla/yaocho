@@ -20,3 +20,25 @@ function($rootScope, $scope, $routeParams, KitsuneCorpus) {
 
   $rootScope.ui.current = $scope.topic;
 }]);
+
+yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune',
+'KStorage', 'cacheDocs',
+function($rootScope, $scope, $location, Kitsune, KStorage, cacheDocs) {
+  if ($location.$$path === "/") {
+    // Minimum cached docs to not display caching suggestion.
+    var minCached = 5;
+
+    KStorage.numObjectsExist('document', minCached)
+      .catch(function() {
+        var confirmMessage = "I see you don't have many documents cached, " +
+          "would you like to download some now?";
+        if (confirm(confirmMessage)) {
+          var product = {'product': $rootScope.settings.product.slug};
+          Kitsune.documents.all(product)
+            .then(function(documents) {
+              cacheDocs(documents);
+          });
+        }
+    });
+}
+}]);

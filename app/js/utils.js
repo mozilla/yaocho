@@ -17,6 +17,22 @@ function safeApply($rootScope) {
   };
 }]);
 
+yaocho.factory('cacheDocs', ['KitsuneCorpus', 'KStorage',
+function cacheDocs(KitsuneCorpus, KStorage) {
+  return function(documents) {
+    documents.forEach(function(doc) {
+      KStorage.getObject('document:' + doc.slug)
+        .then(function() {
+            console.log("document: " + doc.slug + " already exists...");
+        })
+        .catch(function() {
+          console.log(doc.slug + ": Added to cache!");
+          return KitsuneCorpus.getDoc(doc.slug);
+        })
+    });
+  }
+}]);
+
 yaocho.factory('bindPromise', ['safeApply',
 function bindPromise(safeApply) {
   return function($scope, name, promise) {

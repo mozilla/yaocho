@@ -46,6 +46,34 @@ function($rootScope) {
     });
   }
 
+  this.numObjectsExist = function(objectType, num) {
+    return dbPromise
+    .then(function(db) {
+      var transaction = db.transaction('objects');
+      var advanced = false;
+      return new Promise(function(resolve, reject) {
+        transaction.objectStore('objects')
+        .openCursor(IDBKeyRange.bound(objectType, objectType + '\uffff'))
+        .onsuccess = function (ev) {
+          var cursor = ev.target.result;
+          // Check to make sure the cursor isn't null.
+          if (cursor) {
+            if (!advanced) {
+              cursor.advance(num);
+              advanced = true;
+            }
+            else {
+              resolve();
+            }
+          }
+          else {
+            reject();
+          }
+        };
+      });
+    });
+  }
+
   this.putObject = function(key, value) {
     var obj = {
       key: key,
