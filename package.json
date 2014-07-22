@@ -29,7 +29,7 @@
     "request": "^2.37.0",
     "shelljs": "^0.2.6",
     "tern": "^0.6.2",
-    "vinyl": "^0.3.0",
+    "vinyl": "^0.3.0"
   },
   "scripts": {
     "postinstall": "bower install",
