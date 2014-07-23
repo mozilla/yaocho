@@ -1,5 +1,5 @@
 {
-  "name": "Mozilla Support (Beta)",
+  "name": "Mozilla Help",
   "description": "Mobile viewer for Mozilla Support knowledge base articles.",
   "developer": {
     "name": "Mozilla",
@@ -15,5 +15,5 @@
     "256": "/img/logo_256.png",
     "512": "/img/logo_512.png"
   },
-  "version": "0.1"
+  "version": "0.2"
 }

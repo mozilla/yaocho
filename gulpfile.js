@@ -104,7 +104,7 @@ var languages = [
 ];
 
 gulp.task('l10n.get', function() {
-  var kitsuneUrl = 'http://kitsune/{lang}/jsi18n-yaocho/';
+  var kitsuneUrl = 'http://support.mozilla.org/{lang}/jsi18n-yaocho/';
 
   return es.readArray(languages)
     .pipe(es.through(function(lang) {
