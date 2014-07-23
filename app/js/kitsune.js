@@ -3,7 +3,7 @@
 var yaocho = angular.module('yaocho');
 
 // yaocho.value('kitsuneBase', 'http://kitsune');
-yaocho.value('kitsuneBase', 'http://support.mozilla.org');
+yaocho.value('kitsuneBase', 'https://support.mozilla.org/');
 // yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
 // yaocho.value('kitsuneBase', 'https://support.allizom.org');
 
@@ -26,7 +26,7 @@ function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsBlob) {
       var key = 'image:' + path;
       KStorage.getObject(key)
       .catch(function() {
-        var p = downloadImageAsBlob('https://support.mozilla.org' + path)
+        var p = downloadImageAsBlob(kitsuneBase + path)
         p.then(KStorage.putObject.bind(KStorage, key));
         return p;
       })

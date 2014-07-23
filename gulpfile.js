@@ -60,7 +60,7 @@ gulp.task('build.copy', function() {
   );
 });
 
-gulp.task('package', ['build'], function() {
+gulp.task('package', ['build', 'l10n.get'], function() {
   gulp.src('dist/**/*')
     .pipe(zip('yaocho.zip'))
     .pipe(gulp.dest('.'));
@@ -85,7 +85,7 @@ gulp.task('server', ['build'], function() {
 });
 
 gulp.task('dev', ['build', 'watch', 'server']);
-gulp.task('build', ['build.copy', 'build.img', 'l10n.get']);
+gulp.task('build', ['build.copy', 'build.img']);
 gulp.task('default', ['build']);
 
 gulp.task('l10n.extract', function() {
