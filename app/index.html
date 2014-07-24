@@ -22,11 +22,19 @@
 
   <div ng-view></div>
 
+  <div class="flash" ng-controller="CacheDownloadCtrl" ng-show="showCacheUpdate">
+    {{ confirmMessage }}
+    <input type="button" value="{{ yesMsg }}" ng-click="update()"/>
+    <input type="button" value="{{ noMsg }}" ng-click="hideCacheUpdate()"/>
+  </div>
+
+  <div class="loading" ng-controller="LoadingCtrl" ng-show="loading">
+    
+  </div>
+
   <div class="flash" ng-controller="FlashCtrl" ng-hide="message.trim() === ''">
     {{ message }}
   </div>
-
-  <div class="" ng-controller="CacheDownloadCtrl"></div>
 
   <script src="/bower_components/lodash/dist/lodash.js"></script>
   <script src="/bower_components/es6-promise/promise.js"></script>
