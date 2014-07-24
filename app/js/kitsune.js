@@ -338,7 +338,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       });
     }
 
-    var key = 'document:' + slug;
+    var key = 'documents:' + slug;
     KStorage.getSet(key)
     .catch(function() {
       var p = Kitsune.documents.all({
@@ -369,7 +369,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     };
     var docKeys = _.keys(doc);
 
-    var key = 'document:' + slug;
+    var key = 'documents:' + slug;
     KStorage.getObject(key, ['title', 'html'])
     .catch(function(err) {
       var p = Kitsune.documents.get(slug);
