@@ -22,23 +22,66 @@ function($rootScope, $scope, $routeParams, KitsuneCorpus) {
 }]);
 
 yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune',
-'KStorage', 'cacheDocs',
-function($rootScope, $scope, $location, Kitsune, KStorage, cacheDocs) {
+'KitsuneCorpus', 'KStorage', 'cacheDocs', 'cacheTopics',
+function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheDocs, cacheTopics) {
   if ($location.$$path === "/") {
     // Minimum cached docs to not display caching suggestion.
-    var minCached = 5;
+    var minCached = 100;
+
+    console.log("logging obj");
+
+    $scope.update = function() {
+      $scope.showCacheUpdate = false;
+      $rootScope.loading = true;
+
+      var productSlug = $rootScope.settings.product.slug;
+
+      KitsuneCorpus.getSubTopics('/');
+
+      // Update cache for all documents.
+      Kitsune.documents.all({product: productSlug})
+      .then(function(documents) {
+          return cacheDocs(documents);
+      })
+      .then(function() {
+        $rootScope.$apply(function() {
+          //var finishMsg = gettext("Documents finished downloading.");
+          var finishMsg = "Documents finished downloading.";
+          $rootScope.loading = false;
+          $rootScope.$emit('flash', finishMsg);
+        });
+      });
+    }
+
+    $scope.hideCacheUpdate = function() {
+        $scope.showCacheUpdate = false;
+    }
 
     KStorage.numObjectsExist('document', minCached)
-      .catch(function() {
-        var confirmMessage = "I see you don't have many documents cached, " +
-          "would you like to download some now?";
-        if (confirm(confirmMessage)) {
-          var product = {'product': $rootScope.settings.product.slug};
-          Kitsune.documents.all(product)
-            .then(function(documents) {
-              cacheDocs(documents);
-          });
-        }
+    .then(function(exists) {
+      /*
+      $scope.confirmMessage = gettext("Download documents for offline use?");
+      $scope.yesMsg = gettext("Yes");
+      $scope.noMsg = gettext("No");
+      */
+      if (!exists) {
+        $scope.showCacheUpdate = true;
+
+        var confirmMessage = "Download documents for offline use?";
+        $scope.confirmMessage = confirmMessage;
+
+        var yesMsg = "Yes";
+        $scope.yesMsg = yesMsg;
+
+        var noMsg = "No";
+        $scope.noMsg = noMsg;
+      }
     });
-}
+  }
+}]);
+
+
+yaocho.controller('LoadingCtrl', ['$rootScope', '$scope',
+function($rootScope, $scope) {
+  
 }]);

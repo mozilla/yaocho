@@ -63,11 +63,13 @@ function($rootScope) {
               advanced = true;
             }
             else {
-              resolve();
+              // num of objectType do exist.
+              resolve(true);
             }
           }
           else {
-            reject();
+            // num of objectType do not exist.
+            resolve(false);
           }
         };
       });

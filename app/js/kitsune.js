@@ -282,7 +282,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     var keys = [];
 
     docs.forEach(function(doc) {
-      var key = 'document:' + doc.slug;
+      var key = 'documents:' + doc.slug;
       keys.push(key);
       promises.push(KStorage.putObject(key, _.pick(doc, documentKeys)));
     });
