@@ -33,6 +33,35 @@ function cacheDocs(KitsuneCorpus, KStorage) {
   }
 }]);
 
+yaocho.factory('cacheTopic', ['Kitsune', 'KitsuneCorpus', 'KStorage', '$rootScope', 
+function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
+  var documentKeys = ['id', 'slug', 'title', 'locale', 'products', 'topics'];
+  return function(topic) {
+    return KStorage.getSet('documents:' + topic.slug)
+    .then(function() {
+      console.log("documents: " + topic.slug + " already exists...");
+    })
+    .catch(function() {
+      Kitsune.documents.all({
+        product: $rootScope.settings.product.slug,
+        topic: topic.slug,
+      })
+      .then(function(docs) {
+        return docs.map(function(doc) {
+          KitsuneCorpus.getDoc(doc.slug);
+          return 'document:' + doc.slug;
+        });
+      })
+      .then(function(docKeys) {
+        var key = 'documents:' + topic.slug
+        console.log('adding subtopics:');
+        console.log(docKeys);
+        return KStorage.putSet(key, docKeys);
+      })
+    });
+  }
+}]);
+
 yaocho.factory('bindPromise', ['safeApply',
 function bindPromise(safeApply) {
   return function($scope, name, promise) {

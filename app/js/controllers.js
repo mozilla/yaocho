@@ -22,33 +22,50 @@ function($rootScope, $scope, $routeParams, KitsuneCorpus) {
 }]);
 
 yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune',
-'KitsuneCorpus', 'KStorage', 'cacheDocs', 'cacheTopics',
-function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheDocs, cacheTopics) {
+'KitsuneCorpus', 'KStorage', 'cacheDocs', 'cacheTopic',
+function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheDocs, cacheTopic) {
   if ($location.$$path === "/") {
     // Minimum cached docs to not display caching suggestion.
-    var minCached = 100;
+    var minCached = 200;
 
     console.log("logging obj");
 
     $scope.update = function() {
+
       $scope.showCacheUpdate = false;
       $rootScope.loading = true;
 
       var productSlug = $rootScope.settings.product.slug;
+      var topicPromises = []
 
-      KitsuneCorpus.getSubTopics('/');
-
-      // Update cache for all documents.
-      Kitsune.documents.all({product: productSlug})
-      .then(function(documents) {
-          return cacheDocs(documents);
+      KStorage.fuzzySearchObjects('topic:')
+      .then(function(topics) {
+        console.log(topics);
+        console.log(topics.length);
+        topics.forEach(function(topic) {
+          
+          var topicPromise = new Promise(function (resolve, reject) {
+            console.log('caching topic: ' + topic);
+            resolve(cacheTopic(topic));
+          });
+          topicPromises.push(topicPromise);
+        });
       })
+      Promise.all(topicPromises)
       .then(function() {
-        $rootScope.$apply(function() {
-          //var finishMsg = gettext("Documents finished downloading.");
-          var finishMsg = "Documents finished downloading.";
-          $rootScope.loading = false;
-          $rootScope.$emit('flash', finishMsg);
+        // Update cache for all documents.
+        console.log('promise finished');
+        Kitsune.documents.all({product: productSlug})
+        .then(function(documents) {
+            return cacheDocs(documents);
+        })
+        .then(function() {
+          $rootScope.$apply(function() {
+            //var finishMsg = gettext("Documents finished downloading.");
+            var finishMsg = "Documents finished downloading.";
+            $rootScope.loading = false;
+            $rootScope.$emit('flash', finishMsg);
+          });
         });
       });
     }
