@@ -58,16 +58,14 @@ function($rootScope) {
           var cursor = ev.target.result;
           // Check to make sure the cursor isn't null.
           if (cursor) {
-            if (!advanced) {
+            if (advanced) {
+              // num of objectType do exist.
+              resolve(true);
+            } else {
               cursor.advance(num);
               advanced = true;
             }
-            else {
-              // num of objectType do exist.
-              resolve(true);
-            }
-          }
-          else {
+          } else {
             // num of objectType do not exist.
             resolve(false);
           }
@@ -90,8 +88,7 @@ function($rootScope) {
           if (cursor) {
             results.push(cursor.value.value);
             cursor.continue()
-          }
-          else {
+          } else {
             // num of objectType do not exist.
             resolve(results);
           }

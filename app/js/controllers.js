@@ -68,9 +68,3 @@ function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheT
     });
   }
 }]);
-
-
-yaocho.controller('LoadingCtrl', ['$rootScope', '$scope',
-function($rootScope, $scope) {
-  
-}]);
