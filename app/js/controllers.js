@@ -22,50 +22,33 @@ function($rootScope, $scope, $routeParams, KitsuneCorpus) {
 }]);
 
 yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune',
-'KitsuneCorpus', 'KStorage', 'cacheDocs', 'cacheTopic',
-function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheDocs, cacheTopic) {
+'KitsuneCorpus', 'KStorage', 'cacheTopic',
+function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheTopic) {
   if ($location.$$path === "/") {
     // Minimum cached docs to not display caching suggestion.
-    var minCached = 200;
-
-    console.log("logging obj");
+    var minCached = 5;
 
     $scope.update = function() {
-
       $scope.showCacheUpdate = false;
       $rootScope.loading = true;
 
       var productSlug = $rootScope.settings.product.slug;
-      var topicPromises = []
-
       KStorage.fuzzySearchObjects('topic:')
       .then(function(topics) {
         console.log(topics);
-        console.log(topics.length);
-        topics.forEach(function(topic) {
-          
+        return topics.map(function(topic) {
           var topicPromise = new Promise(function (resolve, reject) {
             console.log('caching topic: ' + topic);
             resolve(cacheTopic(topic));
           });
-          topicPromises.push(topicPromise);
         });
       })
-      Promise.all(topicPromises)
-      .then(function() {
-        // Update cache for all documents.
-        console.log('promise finished');
-        Kitsune.documents.all({product: productSlug})
-        .then(function(documents) {
-            return cacheDocs(documents);
-        })
+      .then(function(topicPromises) {
+        Promise.all(topicPromises)
         .then(function() {
-          $rootScope.$apply(function() {
-            //var finishMsg = gettext("Documents finished downloading.");
-            var finishMsg = "Documents finished downloading.";
-            $rootScope.loading = false;
-            $rootScope.$emit('flash', finishMsg);
-          });
+          var finishMsg = gettext("Documents finished downloading.");
+          $rootScope.loading = false;
+          $rootScope.$emit('flash', finishMsg);
         });
       });
     }
@@ -76,22 +59,11 @@ function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheD
 
     KStorage.numObjectsExist('document', minCached)
     .then(function(exists) {
-      /*
       $scope.confirmMessage = gettext("Download documents for offline use?");
       $scope.yesMsg = gettext("Yes");
       $scope.noMsg = gettext("No");
-      */
       if (!exists) {
         $scope.showCacheUpdate = true;
-
-        var confirmMessage = "Download documents for offline use?";
-        $scope.confirmMessage = confirmMessage;
-
-        var yesMsg = "Yes";
-        $scope.yesMsg = yesMsg;
-
-        var noMsg = "No";
-        $scope.noMsg = noMsg;
       }
     });
   }

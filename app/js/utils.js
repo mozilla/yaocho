@@ -17,48 +17,34 @@ function safeApply($rootScope) {
   };
 }]);
 
-yaocho.factory('cacheDocs', ['KitsuneCorpus', 'KStorage',
-function cacheDocs(KitsuneCorpus, KStorage) {
-  return function(documents) {
-    return Promise.all(documents.map(function(doc) {
-      return KStorage.getObject('documents:' + doc.slug)
-      .then(function() {
-        console.log("documents: " + doc.slug + " already exists...");
-      })
-      .catch(function() {
-        console.log(doc.slug + ": Added to cache!");
-        return KitsuneCorpus.getDoc(doc.slug);
-      })
-    }));
-  }
-}]);
-
 yaocho.factory('cacheTopic', ['Kitsune', 'KitsuneCorpus', 'KStorage', '$rootScope', 
 function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
   var documentKeys = ['id', 'slug', 'title', 'locale', 'products', 'topics'];
   return function(topic) {
     return KStorage.getSet('documents:' + topic.slug)
-    .then(function() {
-      console.log("documents: " + topic.slug + " already exists...");
-    })
-    .catch(function() {
-      Kitsune.documents.all({
-        product: $rootScope.settings.product.slug,
-        topic: topic.slug,
+      .then(function() {
+        console.log("documents: " + topic.slug + " already exists...");
       })
-      .then(function(docs) {
-        return docs.map(function(doc) {
-          KitsuneCorpus.getDoc(doc.slug);
-          return 'document:' + doc.slug;
-        });
-      })
-      .then(function(docKeys) {
-        var key = 'documents:' + topic.slug
-        console.log('adding subtopics:');
-        console.log(docKeys);
-        return KStorage.putSet(key, docKeys);
-      })
-    });
+      .catch(function() {
+        Kitsune.documents.all({
+          product: $rootScope.settings.product.slug,
+          topic: topic.slug,
+        })
+        .then(function(docs) {
+          return docs.map(function(doc) {
+            // Cache the doc while we're at it!
+            KitsuneCorpus.getDoc(doc.slug);
+            return 'document:' + doc.slug;
+          });
+        })
+        .then(function(docKeys) {
+          var key = 'documents:' + topic.slug
+          console.log('adding subtopics:');
+          console.log(docKeys);
+          Kitsune
+          return KStorage.putSet(key, docKeys);
+        })
+      });
   }
 }]);
 
