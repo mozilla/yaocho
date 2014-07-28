@@ -24,7 +24,7 @@ function($rootScope, $scope, $routeParams, KitsuneCorpus) {
 yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune',
 'KitsuneCorpus', 'KStorage', 'cacheTopic',
 function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheTopic) {
-  if ($location.$$path === "/") {
+  if ($location.path() === "/") {
     // Minimum cached docs to not display caching suggestion.
     var minCached = 5;
 
