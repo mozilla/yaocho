@@ -30,20 +30,16 @@ function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
           topic: topic.slug,
         })
         .then(function(docs) {
-          return Promise.all(docs.map(function(doc) {
-            return new Promise(function(resolve, reject) {
+          var docKeys = docs.map(function(doc) {
               // Cache the doc while we're at it!
               KitsuneCorpus.getDoc(doc.slug);
-              resolve('document:' + doc.slug);
-            });
-          }))
-          .then(function(docKeys) {
-            var key = 'documents:' + topic.slug
-            console.log('adding subtopics:');
-            console.log(docKeys);
-            return KStorage.putSet(key, docKeys);
-          });
-        })
+              return 'document:' + doc.slug;
+          })
+          var key = 'documents:' + topic.slug
+          console.log('adding subtopics:');
+          console.log(docKeys);
+          return KStorage.putSet(key, docKeys);
+        });
       });
   }
 }]);
