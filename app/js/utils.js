@@ -40,7 +40,6 @@ function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
           var key = 'documents:' + topic.slug
           console.log('adding subtopics:');
           console.log(docKeys);
-          Kitsune
           return KStorage.putSet(key, docKeys);
         })
       });
