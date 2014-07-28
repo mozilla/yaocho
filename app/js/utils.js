@@ -25,22 +25,24 @@ function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
         console.log("documents: " + topic.slug + " already exists...");
       })
       .catch(function() {
-        Kitsune.documents.all({
+        return Kitsune.documents.all({
           product: $rootScope.settings.product.slug,
           topic: topic.slug,
         })
         .then(function(docs) {
-          return docs.map(function(doc) {
-            // Cache the doc while we're at it!
-            KitsuneCorpus.getDoc(doc.slug);
-            return 'document:' + doc.slug;
+          return Promise.all(docs.map(function(doc) {
+            return new Promise(function(resolve, reject) {
+              // Cache the doc while we're at it!
+              KitsuneCorpus.getDoc(doc.slug);
+              resolve('document:' + doc.slug);
+            });
+          }))
+          .then(function(docKeys) {
+            var key = 'documents:' + topic.slug
+            console.log('adding subtopics:');
+            console.log(docKeys);
+            return KStorage.putSet(key, docKeys);
           });
-        })
-        .then(function(docKeys) {
-          var key = 'documents:' + topic.slug
-          console.log('adding subtopics:');
-          console.log(docKeys);
-          return KStorage.putSet(key, docKeys);
         })
       });
   }

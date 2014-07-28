@@ -36,20 +36,12 @@ function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheT
       KStorage.fuzzySearchObjects('topic:')
       .then(function(topics) {
         console.log(topics);
-        return topics.map(function(topic) {
-          var topicPromise = new Promise(function (resolve, reject) {
-            console.log('caching topic: ' + topic);
-            resolve(cacheTopic(topic));
-          });
-        });
+        return Promise.all(topics.map(cacheTopic));
       })
-      .then(function(topicPromises) {
-        Promise.all(topicPromises)
-        .then(function() {
+      .then(function() {
           var finishMsg = gettext("Documents finished downloading.");
           $rootScope.loading = false;
           $rootScope.$emit('flash', finishMsg);
-        });
       });
     }
 

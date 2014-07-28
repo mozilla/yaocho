@@ -28,9 +28,7 @@
     <input type="button" value="{{ noMsg }}" ng-click="hideCacheUpdate()"/>
   </div>
 
-  <div class="loading"  ng-show="loading">
-    
-  </div>
+  <div class="loading"  ng-show="loading"></div>
 
   <div class="flash" ng-controller="FlashCtrl" ng-hide="message.trim() === ''">
     {{ message }}
