@@ -19,7 +19,6 @@ function safeApply($rootScope) {
 
 yaocho.factory('cacheTopic', ['Kitsune', 'KitsuneCorpus', 'KStorage', '$rootScope', 
 function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
-  var documentKeys = ['id', 'slug', 'title', 'locale', 'products', 'topics'];
   return function(topic) {
     return KStorage.getSet('documents:' + topic.slug)
       .then(function() {
