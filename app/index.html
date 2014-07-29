@@ -22,6 +22,14 @@
 
   <div ng-view></div>
 
+  <div class="flash" ng-controller="CacheDownloadCtrl" ng-show="showCacheUpdate">
+    {{ confirmMessage }}
+    <input type="button" value="{{ yesMsg }}" ng-click="update()"/>
+    <input type="button" value="{{ noMsg }}" ng-click="hideCacheUpdate()"/>
+  </div>
+
+  <div class="loading"  ng-show="loading"></div>
+
   <div class="flash" ng-controller="FlashCtrl" ng-hide="message.trim() === ''">
     {{ message }}
   </div>

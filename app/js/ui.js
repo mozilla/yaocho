@@ -2,8 +2,8 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('NavCtrl', ['$scope', '$rootScope', '$location',
-function($scope, $rootScope, $location) {
+yaocho.controller('NavCtrl', ['$scope', '$rootScope',
+function($scope, $rootScope) {
   var locationTrail = [];
 
   $rootScope.ui = {

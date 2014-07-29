@@ -36,9 +36,14 @@ gulp.task('build.img.logo', function() {
   }));
 });
 
-gulp.task('build.img', ['build.img.logo'], function() {
+gulp.task('build.img', ['build.img.logo', 'build.img.copy'], function() {
   return gulp.src('./app/img/gear.svg')
     .pipe(rsvg())
+    .pipe(gulp.dest('./dist/img/'));
+});
+
+gulp.task('build.img.copy', function() {
+  return gulp.src('./app/img/loading.gif')
     .pipe(gulp.dest('./dist/img/'));
 });
 
