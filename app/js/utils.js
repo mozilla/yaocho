@@ -17,6 +17,26 @@ function safeApply($rootScope) {
   };
 }]);
 
+yaocho.factory('updateCache', ['$rootScope', 'KStorage', 'cacheTopic',
+function updateCache($rootScope, KStorage, cacheTopic) {
+  return function() {
+    // In case it's being shown.
+    $rootScope.showCacheUpdate = false;
+    $rootScope.loading = true;
+
+    var productSlug = $rootScope.settings.product.slug;
+    KStorage.fuzzySearchObjects('topic:')
+    .then(function(topics) {
+      return Promise.all(topics.map(cacheTopic));
+    })
+    .then(function() {
+      var finishMsg = gettext("Documents finished downloading.");
+      $rootScope.loading = false;
+      $rootScope.$emit('flash', finishMsg);
+    });
+  }
+}]);
+
 yaocho.factory('cacheTopic', ['Kitsune', 'KitsuneCorpus', 'KStorage', '$rootScope', 
 function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
   return function(topic) {

@@ -2,11 +2,12 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('SettingsCtrl', ['$scope', '$rootScope', 'KStorage',
-function($scope, $rootScope, KStorage) {
+yaocho.controller('SettingsCtrl', ['$scope', '$rootScope', 'KStorage', 'updateCache',
+function($scope, $rootScope, KStorage, updateCache) {
   $rootScope.ui = $rootScope.ui || {};
   $rootScope.ui.current = {title: 'Settings'};
 
+  $scope.updateCacheText = gettext('Download All Documents');
   $scope.clearCacheText = gettext('Clear Cache');
 
   // These also serve as the defaults.
@@ -17,11 +18,15 @@ function($scope, $rootScope, KStorage) {
     },
     locale: 'en-US',
   };
+ 
+  $scope.updateCache = function() {
+    updateCache();
+  };
 
   $scope.clearCache = function() {
     KStorage.clear();
     $rootScope.$emit('flash', gettext('Cache cleared.'));
   };
 
-  $rootScope.settings = $scope.settings;
+    $rootScope.settings = $scope.settings;
 }]);
