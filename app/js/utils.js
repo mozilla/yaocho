@@ -20,22 +20,19 @@ function safeApply($rootScope) {
 yaocho.factory('cacheTopic', ['Kitsune', 'KitsuneCorpus', 'KStorage', '$rootScope', 
 function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
   return function(topic) {
-    return KStorage.getSet('documents:' + topic.slug)
-      .catch(function() {
-        return Kitsune.documents.all({
-          product: $rootScope.settings.product.slug,
-          topic: topic.slug,
-        })
+    return Kitsune.documents.all({
+      product: $rootScope.settings.product.slug,
+      topic: topic.slug,
+    })
+    .then(function(docs) {
+      var docKeys = docs.map(function(doc) {
+          // Cache the doc while we're at it!
+          KitsuneCorpus.getDoc(doc.slug);
+          return 'document:' + doc.slug;
       })
-      .then(function(docs) {
-        var docKeys = docs.map(function(doc) {
-            // Cache the doc while we're at it!
-            KitsuneCorpus.getDoc(doc.slug);
-            return 'document:' + doc.slug;
-        })
-        var key = 'documents:' + topic.slug
-        return KStorage.putSet(key, docKeys);
-      });
+      var key = 'documents:' + topic.slug
+      return KStorage.putSet(key, docKeys);
+    });
   }
 }]);
 
