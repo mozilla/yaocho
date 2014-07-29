@@ -48,7 +48,7 @@ function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheT
         $scope.showCacheUpdate = false;
     }
 
-    KStorage.numObjectsExist('document', minCached)
+    KStorage.numObjectsExist('document:', minCached)
     .then(function(exists) {
       $scope.confirmMessage = gettext("Download documents for offline use?");
       $scope.yesMsg = gettext("Yes");
