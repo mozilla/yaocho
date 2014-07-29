@@ -35,7 +35,6 @@ function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheT
       var productSlug = $rootScope.settings.product.slug;
       KStorage.fuzzySearchObjects('topic:')
       .then(function(topics) {
-        console.log(topics);
         return Promise.all(topics.map(cacheTopic));
       })
       .then(function() {
