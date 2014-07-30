@@ -307,12 +307,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     }
 
     var key = 'subtopics:' + parent;
-    KStorage.getSet(key)
-    .catch(function() {
-      var p = Kitsune.topics.all(product);
-      p.then(updateCacheAllTopics);
-      return p;
-    })
+    this.getSubTopicPromise(key, product)
     .then(function(val) {
       addSubtopics(val.filter(function(topic) { return topic.parent === parent; }));
     })
@@ -322,6 +317,15 @@ function($rootScope, Kitsune, KStorage, safeApply) {
 
     return subtopics;
   };
+
+  this.getSubTopicPromise = function(key, product) {
+    return KStorage.getSet(key)
+    .catch(function() {
+      var p = Kitsune.topics.all(product);
+      p.then(updateCacheAllTopics);
+      return p;
+    });
+  }
 
   this.getTopicDocs = function(slug) {
     if (!slug) {

@@ -17,17 +17,21 @@ function safeApply($rootScope) {
   };
 }]);
 
-yaocho.factory('updateCache', ['$rootScope', 'KStorage', 'cacheTopic',
-function updateCache($rootScope, KStorage, cacheTopic) {
+yaocho.factory('updateCache', ['$rootScope', 'KitsuneCorpus', 'KStorage', 'cacheTopic',
+function updateCache($rootScope, KitsuneCorpus, KStorage, cacheTopic) {
   return function() {
     // In case it's being shown.
     $rootScope.showCacheUpdate = false;
     $rootScope.loading = true;
 
-    var productSlug = $rootScope.settings.product.slug;
-    KStorage.fuzzySearchObjects('topic:')
-    .then(function(topics) {
-      return Promise.all(topics.map(cacheTopic));
+    var product = $rootScope.settings.product.slug;
+    var key = 'subtopics:' + null
+    KitsuneCorpus.getSubTopicPromise(key, product)
+    .then(function() {
+      return KStorage.fuzzySearchObjects('topic:')
+      .then(function(topics) {
+        return Promise.all(topics.map(cacheTopic));
+      })
     })
     .then(function() {
       var finishMsg = gettext("Documents finished downloading.");
