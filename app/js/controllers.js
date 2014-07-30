@@ -28,9 +28,8 @@ function($rootScope, $scope, $location, KStorage, updateCache) {
     // Minimum cached docs to not display caching suggestion.
     var minCached = 5;
 
-    $scope.updateCache = function() {
-      updateCache();
-    }
+    $scope.updateCache = updateCache;
+    
 
     $scope.hideCacheUpdate = function() {
         $rootScope.showCacheUpdate = false;
