@@ -25,7 +25,7 @@ function updateCache($rootScope, KitsuneCorpus, KStorage, cacheTopic) {
     $rootScope.loading = true;
 
     var product = $rootScope.settings.product.slug;
-    var key = 'subtopics:' + null
+    var key = 'subtopics:' + null;
     KitsuneCorpus.getSubTopicPromise(key, product)
     .then(function() {
       return KStorage.fuzzySearchObjects('topic:')
