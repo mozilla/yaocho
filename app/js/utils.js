@@ -29,9 +29,9 @@ function updateCache($rootScope, KitsuneCorpus, KStorage, cacheTopic) {
     KitsuneCorpus.getSubTopicPromise(key, product)
     .then(function() {
       return KStorage.fuzzySearchObjects('topic:')
-      .then(function(topics) {
-        return Promise.all(topics.map(cacheTopic));
-      })
+    })
+    .then(function(topics) {
+      return Promise.all(topics.map(cacheTopic));
     })
     .then(function() {
       var finishMsg = gettext("Documents finished downloading.");
@@ -49,13 +49,15 @@ function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
       topic: topic.slug,
     })
     .then(function(docs) {
+      var promises = [];
       var docKeys = docs.map(function(doc) {
           // Cache the doc while we're at it!
-          KitsuneCorpus.getDoc(doc.slug);
+          promises.push(KitsuneCorpus.getDoc(doc.slug));
           return 'document:' + doc.slug;
       })
       var key = 'documents:' + topic.slug
-      return KStorage.putSet(key, docKeys);
+      promises.push(KStorage.putSet(key, docKeys));
+      return Promise.all(promises);
     });
   }
 }]);

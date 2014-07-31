@@ -19,14 +19,12 @@ function($scope, $rootScope, KStorage, updateCache) {
     locale: 'en-US',
   };
  
-  $scope.updateCache = function() {
-    updateCache();
-  };
+  $scope.updateCache = updateCache;
 
   $scope.clearCache = function() {
     KStorage.clear();
     $rootScope.$emit('flash', gettext('Cache cleared.'));
   };
 
-    $rootScope.settings = $scope.settings;
+  $rootScope.settings = $scope.settings;
 }]);
