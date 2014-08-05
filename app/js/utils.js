@@ -17,25 +17,48 @@ function safeApply($rootScope) {
   };
 }]);
 
+yaocho.factory('updateCache', ['$rootScope', 'KitsuneCorpus', 'KStorage', 'cacheTopic',
+function updateCache($rootScope, KitsuneCorpus, KStorage, cacheTopic) {
+  return function() {
+    // In case it's being shown.
+    $rootScope.showCacheUpdate = false;
+    $rootScope.loading = true;
+
+    var product = $rootScope.settings.product.slug;
+    var key = 'subtopics:' + null;
+    KitsuneCorpus.getSubTopicPromise(key, product)
+    .then(function() {
+      return KStorage.fuzzySearchObjects('topic:')
+    })
+    .then(function(topics) {
+      return Promise.all(topics.map(cacheTopic));
+    })
+    .then(function() {
+      var finishMsg = gettext("Documents finished downloading.");
+      $rootScope.loading = false;
+      $rootScope.$emit('flash', finishMsg);
+    });
+  }
+}]);
+
 yaocho.factory('cacheTopic', ['Kitsune', 'KitsuneCorpus', 'KStorage', '$rootScope', 
 function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
   return function(topic) {
-    return KStorage.getSet('documents:' + topic.slug)
-      .catch(function() {
-        return Kitsune.documents.all({
-          product: $rootScope.settings.product.slug,
-          topic: topic.slug,
-        })
+    return Kitsune.documents.all({
+      product: $rootScope.settings.product.slug,
+      topic: topic.slug,
+    })
+    .then(function(docs) {
+      var promises = [];
+      var docKeys = docs.map(function(doc) {
+          // Cache the doc while we're at it!
+          promises.push(KitsuneCorpus.getDoc(doc.slug));
+          return 'document:' + doc.slug;
       })
-      .then(function(docs) {
-        var docKeys = docs.map(function(doc) {
-            // Cache the doc while we're at it!
-            KitsuneCorpus.getDoc(doc.slug);
-            return 'document:' + doc.slug;
-        })
-        var key = 'documents:' + topic.slug
-        return KStorage.putSet(key, docKeys);
-      });
+      var key = 'documents:' + topic.slug
+      promises.push(KStorage.putSet(key, docKeys));
+      return Promise.all(promises);
+    });
   }
 }]);
 
