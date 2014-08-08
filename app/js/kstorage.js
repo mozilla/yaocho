@@ -128,7 +128,7 @@ function() {
   }
 
   var dbPromise = new Promise(function(resolve, reject) {
-    var openReq = indexedDB.open('kitsune', 1);
+    var openReq = window.indexedDB.open('kitsune', 1);
     openReq.onsuccess = function(ev) {
       resolve(openReq.result);
     };
@@ -176,7 +176,7 @@ function() {
       var advanced = false;
       return new Promise(function(resolve, reject) {
         transaction.objectStore('objects')
-        .openCursor(IDBKeyRange.bound(objectType, objectType + '\uffff'))
+        .openCursor(window.IDBKeyRange.bound(objectType, objectType + '\uffff'))
         .onsuccess = function (ev) {
           var cursor = ev.target.result;
           // Check to make sure the cursor isn't null.
@@ -195,22 +195,22 @@ function() {
         };
       });
     });
-  }
+  };
 
   this.fuzzySearchObjects = function(partialKey) {
     return dbPromise
     .then(function(db) {
       var transaction = db.transaction('objects');
-      var results = []
+      var results = [];
       return new Promise(function(resolve, reject) {
         var req = transaction.objectStore('objects')
-          .openCursor(IDBKeyRange.bound(partialKey, partialKey + '\uffff'));
+          .openCursor(window.IDBKeyRange.bound(partialKey, partialKey + '\uffff'));
         req.onsuccess = function (ev) {
           var cursor = ev.target.result;
           // Check to make sure the cursor isn't null.
           if (cursor) {
             results.push(cursor.value.value);
-            cursor.continue()
+            cursor.continue();
           } else {
             // num of objectType do not exist.
             resolve(results);

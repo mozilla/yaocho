@@ -86,7 +86,8 @@ function(showForSettings) {
       if (allPlatforms.indexOf(part) >= 0) {
         platformFound = true;
         if (part == 'win') {
-          platformMatch = platformMatch || !!enabledPlatforms['win'] ||
+          platformMatch = platformMatch ||
+                          !!enabledPlatforms['win'] ||
                           !!enabledPlatforms['winxp'] ||
                           !!enabledPlatforms['win7'] ||
                           !!enabledPlatforms['win8'];
@@ -98,14 +99,14 @@ function(showForSettings) {
         var regexMatch = /^(=|>=)([^\d]+)([\d\.]*)$/.exec(part);
         if (regexMatch && showForSettings[regexMatch[2]]) {
           browserFound = true;
-          var op = regexMatch[1]
+          var op = regexMatch[1];
           var browserCode = regexMatch[2];
           var version = parseFloat(regexMatch[3]);
 
           var settings = showForSettings[browserCode];
           if (settings.enabled) {
 
-            if ((op === '>=' || op == '') && settings.version.min <= version) {
+            if ((op === '>=' || op === '') && settings.version.min <= version) {
               browserMatch = true;
             } else if (op === '=' && settings.version.min <= version && settings.version.max > version) {
               browserMatch = true;
@@ -119,9 +120,9 @@ function(showForSettings) {
     });
 
     /* This implements the right logic of:
-     * If any browsers are found, they must all match.
-     * If any platform is found, they must all match.
-     * If nothing is found, it will be shown.
+     *   - If any browsers are found, they must all match.
+     *   - If any platform is found, they must all match.
+     *   - If nothing is found, it will be shown.
      */
     var match = (browserMatch && !platformFound) ||
                 (platformMatch && !browserFound) ||
@@ -201,7 +202,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
         if (!obj2.hasOwnProperty(key)) continue;
         obj1[key] = obj2[key];
       }
-    })
+    });
   }
 
   this.getTopic = function(topicSlug) {
@@ -223,7 +224,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       var key = 'topic:' + product + '/' + topicSlug;
       KStorage.getObject(key, ['title'])
       .catch(function() {
-        var p = Kitsune.topics.one(product, topicSlug)
+        var p = Kitsune.topics.one(product, topicSlug);
         p.then(function(val) {
           KStorage.putObject(key, _.pick(topic, topicKeys));
         });
@@ -262,11 +263,11 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       if (key === null) {
         key = '/';
       }
-      var key = 'subtopics:' + key;
-      var keys = subtopics.map(function(st) {
+      var parentKey = 'subtopics:' + key;
+      var subTopicKeys = subtopics.map(function(st) {
         return 'topic:' + st.product + '/' + st.slug;
       });
-      promises.push(KStorage.putSet(key, keys));
+      promises.push(KStorage.putSet(parentKey, subTopicKeys));
     }
 
     return Promise.all(promises);
@@ -297,8 +298,8 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       safeApply(function() {
         newSubtopics.forEach(function(subtopic) {
           subtopics.push(subtopic);
-        })
-      })
+        });
+      });
     }
 
     var key = 'subtopics:' + parent;
@@ -313,7 +314,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     })
     .catch(function(err) {
       console.error('getSubTopics error', 'key=' + key, err);
-    })
+    });
 
     return subtopics;
   };
@@ -341,7 +342,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
         topic: slug,
       });
       p.then(updateCacheDocs.bind(null, key));
-      return p
+      return p;
     })
     .then(function(val) {
       addDocs(val);

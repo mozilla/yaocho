@@ -41,11 +41,11 @@ function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheT
           $rootScope.loading = false;
           $rootScope.$emit('flash', finishMsg);
       });
-    }
+    };
 
     $scope.hideCacheUpdate = function() {
         $scope.showCacheUpdate = false;
-    }
+    };
 
     IndexedDbWrapper.numObjectsExist('document', minCached)
     .then(function(exists) {
