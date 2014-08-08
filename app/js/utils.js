@@ -101,3 +101,16 @@ function() {
     });
   };
 }]);
+
+yaocho.factory('updateObject', ['safeApply',
+function(safeApply) {
+  return function update(target, from) {
+    safeApply(function() {
+      for (var key in from) {
+        if (key.indexOf('$') === 0) continue;
+        if (!from.hasOwnProperty(key)) continue;
+        target[key] = from[key];
+      }
+    });
+  };
+}]);

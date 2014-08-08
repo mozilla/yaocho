@@ -25,11 +25,6 @@ function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsBlob) {
 
       var key = 'image:' + path;
       KStorage.getObject(key)
-      .catch(function() {
-        var p = downloadImageAsBlob(kitsuneBase + path)
-        p.then(KStorage.putObject.bind(KStorage, key));
-        return p;
-      })
       .then(function(imageData) {
         element.attr('src', URL.createObjectURL(imageData));
       })

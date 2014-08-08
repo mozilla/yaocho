@@ -2,28 +2,27 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('DocumentCtrl', ['$rootScope', '$scope', '$routeParams', 'KitsuneCorpus',
-function($rootScope, $scope, $routeParams, KitsuneCorpus) {
-  $scope.document = KitsuneCorpus.getDoc($routeParams.slug);
+yaocho.controller('DocumentCtrl', ['$rootScope', '$scope', '$routeParams', 'KStorage',
+function($rootScope, $scope, $routeParams, KStorage) {
+  $scope.document = KStorage.getObject('document:' + $routeParams.slug).$$object;
   $rootScope.ui.current = $scope.document;
 }]);
 
-yaocho.controller('TopicBrowserCtrl', ['$rootScope', '$scope', '$routeParams', 'KitsuneCorpus',
-function($rootScope, $scope, $routeParams, KitsuneCorpus) {
+yaocho.controller('TopicBrowserCtrl', ['$rootScope', '$scope', '$routeParams', 'KStorage',
+function($rootScope, $scope, $routeParams, KStorage) {
   if (!$routeParams.topic) {
     $rootScope.ui.backHidden = true;
   }
-
-  $scope.topic = KitsuneCorpus.getTopic($routeParams.topic);
-  $scope.subtopics = KitsuneCorpus.getSubTopics($routeParams.topic);
-  $scope.documents = KitsuneCorpus.getTopicDocs($routeParams.topic);
-
+  var product = $rootScope.settings.product.slug;
+  var topic = $routeParams.topic || '';
+  var key = 'topic:' + product + '/' + topic;
+  console.log('TopicBrowserCtrl', key);
+  $scope.topic = KStorage.getObject(key).$$object;
   $rootScope.ui.current = $scope.topic;
 }]);
 
-yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune',
-'KitsuneCorpus', 'KStorage', 'cacheTopic',
-function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheTopic) {
+yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune', 'KitsuneCorpus', 'KStorage', 'cacheTopic', 'IndexedDbWrapper',
+function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheTopic, IndexedDbWrapper) {
   if ($location.path() === "/") {
     // Minimum cached docs to not display caching suggestion.
     var minCached = 5;
@@ -48,7 +47,7 @@ function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheT
         $scope.showCacheUpdate = false;
     }
 
-    KStorage.numObjectsExist('document', minCached)
+    IndexedDbWrapper.numObjectsExist('document', minCached)
     .then(function(exists) {
       $scope.confirmMessage = gettext("Download documents for offline use?");
       $scope.yesMsg = gettext("Yes");

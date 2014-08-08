@@ -2,8 +2,119 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.service('KStorage', ['$rootScope',
-function($rootScope) {
+yaocho.service('KStorage', ['$rootScope', '$injector', 'updateObject',
+function($rootScope, $injector, updateObject) {
+
+  var fetchMethodsForType = {
+    document: ['fromCache', 'documentFromNetwork', 'lol'],
+    image: ['fromCache', 'imageFromNetwork', 'lol'],
+    topic: ['fromCache', 'topicFromNetwork', 'lol'],
+  };
+
+  this.getObject = function(key) {
+    var type = key.split(':')[0];
+    var fetchMethods = fetchMethodsForType[type];
+    if (fetchMethods === undefined) {
+      throw new Error('Unknown KStorage type: ' + type);
+    }
+    fetchMethods = fetchMethods.map(function(m) { return this.methods[m]; }.bind(this));
+
+    var p = new Promise(function(resolve, reject) {
+      function next() {
+        var method = fetchMethods.shift();
+        if (method === undefined) {
+          reject();
+        }
+        method(key)
+        .then(function(obj) {
+          updateObject(p.$$object, obj);
+          resolve(obj);
+        })
+        .catch(next);
+      }
+      next();
+    });
+
+    p.$$object = {};
+
+    return p;
+  };
+
+  this.methods = {
+    fromCache: function(key) {
+      console.log('methods.fromCache', key);
+      var idb = $injector.get('IndexedDbWrapper');
+      return idb.getObject(key);
+    },
+
+    documentFromNetwork: function(key) {
+      console.log('methods.documentFromNetwork', key);
+      var KitsuneRestangular = $injector.get('KitsuneRestangular');
+      var idb = $injector.get('IndexedDbWrapper');
+
+      var slug = key.split(':')[1];
+      var documentKeys = ['title', 'slug', 'html', 'products', 'topics', 'locale'];
+
+      return KitsuneRestangular.one('kb', slug).get()
+      .then(function(doc) {
+        doc = _.pick(doc, documentKeys);
+        idb.putObject(key, doc)
+        .then(function() {
+          console.log('put document in cache', key);
+        })
+        .catch(function(err) {
+          console.error('erroring putting', key, 'in cache');
+          console.error(err.trace || err);
+        });
+        return doc;
+      });
+    },
+
+    imageFromNetwork: function(key) {
+      console.log('methods.imageFromNetwork', key);
+      var idb = $injector.get('IndexedDbWrapper');
+      var downloadImageAsBlob = $injector.get('downloadImageAsBlob');
+      var kitsuneBase = $injector.get('kitsuneBase');
+
+      var path = key.split(':')[1];
+
+      var p = downloadImageAsBlob(kitsuneBase + path);
+      p.then(idb.putObject.bind(idb, key));
+      return p;
+    },
+
+    topicFromNetwork: function(key) {
+      console.log('methods.topicFromNetwork', key);
+      var KitsuneRestangular = $injector.get('KitsuneRestangular');
+      var idb = $injector.get('IndexedDbWrapper');
+
+      var slug = key.split(':')[1];
+      var product = slug.split('/')[0];
+      var topic = slug.split('/')[1];
+      var topicKeys = ['id', 'slug', 'title', 'parent', 'product', 'subtopics', 'documents'];
+
+      return KitsuneRestangular.one('products', product).one('topic', topic).get()
+      .then(function(doc) {
+        doc = _.pick(doc, topicKeys);
+        idb.putObject(key, doc);
+        return doc;
+      });
+    },
+
+    lol: function(key) {
+      console.log('methods.lol', key);
+      return Promise.resolve({
+        title: 'LOL',
+        html: 'hahahahahahaha',
+      });
+    }
+  };
+
+}]);
+
+
+yaocho.service('IndexedDbWrapper', [
+function() {
 
   function reqToPromise(req) {
     return new Promise(function(resolve, reject) {
@@ -27,7 +138,6 @@ function($rootScope) {
     };
     openReq.onupgradeneeded = function(ev) {
       openReq.result.createObjectStore('objects', {keyPath: 'key'});
-      openReq.result.createObjectStore('sets', {keyPath: 'key'});
     };
   });
 
@@ -35,16 +145,29 @@ function($rootScope) {
     return dbPromise
     .then(function(db) {
       var transaction = db.transaction('objects');
-      return reqToPromise(transaction.objectStore('objects').get(key))
+      return reqToPromise(transaction.objectStore('objects').get(key));
     })
     .then(function(obj) {
       if (obj) {
         return obj.value;
       } else {
-        throw new Error('Cache miss for getObject(' + key + ')');
+        console.log('cache miss', key);
+        throw new Error('Cache miss for ' + key);
       }
     });
-  }
+  };
+
+  this.putObject = function(key, value) {
+    var obj = {
+      key: key,
+      value: value,
+    };
+    return dbPromise
+    .then(function(db) {
+      var transaction = db.transaction('objects', 'readwrite');
+      return reqToPromise(transaction.objectStore('objects').put(obj));
+    });
+  };
 
   this.numObjectsExist = function(objectType, num) {
     return dbPromise
@@ -95,72 +218,13 @@ function($rootScope) {
         };
       });
     });
-  }
-
-  this.putObject = function(key, value) {
-    var obj = {
-      key: key,
-      value: value,
-    };
-    return dbPromise
-    .then(function(db) {
-      var transaction = db.transaction('objects', 'readwrite');
-      return reqToPromise(transaction.objectStore('objects').put(obj));
-    })
   };
-
-  this.putSet = function(key, setKeys) {
-    return dbPromise
-    .then(function(db) {
-      var transaction = db.transaction('sets', 'readwrite');
-      return reqToPromise(transaction.objectStore('sets').put({
-        key: key,
-        value: setKeys,
-      }));
-    })
-  };
-
-  this.getSet = function(key) {
-    // this can't use reqToPromise for the first call because the
-    // transaction goes stale by the time the promise .then would call.
-    return dbPromise
-    .then(function(db) {
-      return new Promise(function(resolve, reject) {
-        var transaction = db.transaction(['objects', 'sets']);
-        var req = transaction.objectStore('sets').get(key);
-        req.onsuccess = function() {
-          if (req.result === undefined) {
-            reject(new Error('Cache miss for getSet(' + key + ')'));
-          } else {
-            var listOfKeys = req.result.value.filter(function(key) { return !!key; });
-            resolve(Promise.all(listOfKeys.map(function(key) {
-              if (key !== undefined) {
-                return reqToPromise(transaction.objectStore('objects').get(key))
-                .then(function(obj) {
-                  if (obj) {
-                    return obj.value;
-                  } else {
-                    return {title: key};
-                  }
-                });
-              }
-            })));
-          }
-        }
-        req.onerror = function() {
-          reject(req.result);
-        }
-      });
-    })
-  }
 
   this.clear = function() {
     return dbPromise
     .then(function(db) {
-      var transaction = db.transaction(['objects', 'sets'], 'readwrite');
-      var setReq = transaction.objectStore('sets').clear();
-      var objReq = transaction.objectStore('objects').clear();
-      return Promise.all([setReq, objReq].map(reqToPromise));
+      var transaction = db.transaction(['objects'], 'readwrite');
+      return reqToPromise(transaction.objectStore('objects').clear());
     });
-  }
+  };
 }]);
