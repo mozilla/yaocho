@@ -42,13 +42,11 @@ function($rootScope, $injector, updateObject) {
 
   this.methods = {
     fromCache: function(key) {
-      console.log('methods.fromCache', key);
       var idb = $injector.get('IndexedDbWrapper');
       return idb.getObject(key);
     },
 
     documentFromNetwork: function(key) {
-      console.log('methods.documentFromNetwork', key);
       var KitsuneRestangular = $injector.get('KitsuneRestangular');
       var idb = $injector.get('IndexedDbWrapper');
 
@@ -59,19 +57,11 @@ function($rootScope, $injector, updateObject) {
       .then(function(doc) {
         doc = _.pick(doc, documentKeys);
         idb.putObject(key, doc)
-        .then(function() {
-          console.log('put document in cache', key);
-        })
-        .catch(function(err) {
-          console.error('erroring putting', key, 'in cache');
-          console.error(err.trace || err);
-        });
         return doc;
       });
     },
 
     imageFromNetwork: function(key) {
-      console.log('methods.imageFromNetwork', key);
       var idb = $injector.get('IndexedDbWrapper');
       var downloadImageAsBlob = $injector.get('downloadImageAsBlob');
       var kitsuneBase = $injector.get('kitsuneBase');
@@ -84,7 +74,6 @@ function($rootScope, $injector, updateObject) {
     },
 
     topicFromNetwork: function(key) {
-      console.log('methods.topicFromNetwork', key);
       var KitsuneRestangular = $injector.get('KitsuneRestangular');
       var idb = $injector.get('IndexedDbWrapper');
 
@@ -100,14 +89,6 @@ function($rootScope, $injector, updateObject) {
         return doc;
       });
     },
-
-    lol: function(key) {
-      console.log('methods.lol', key);
-      return Promise.resolve({
-        title: 'LOL',
-        html: 'hahahahahahaha',
-      });
-    }
   };
 
 }]);
@@ -151,7 +132,6 @@ function() {
       if (obj) {
         return obj.value;
       } else {
-        console.log('cache miss', key);
         throw new Error('Cache miss for ' + key);
       }
     });
