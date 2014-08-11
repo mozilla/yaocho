@@ -23,7 +23,7 @@ function($rootScope, $injector, updateObject) {
       function next() {
         var method = fetchMethods.shift();
         if (method === undefined) {
-          reject();
+          return reject();
         }
         method(key)
         .then(function(obj) {

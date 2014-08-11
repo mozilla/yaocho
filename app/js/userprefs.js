@@ -2,8 +2,8 @@
 
 var yaocho = angular.module('yaocho');
 
-yaocho.controller('SettingsCtrl', ['$scope', '$rootScope', 'KStorage',
-function($scope, $rootScope, KStorage) {
+yaocho.controller('SettingsCtrl', ['$scope', '$rootScope', 'IndexedDbWrapper',
+function($scope, $rootScope, IndexedDBWrapper) {
   $rootScope.ui = $rootScope.ui || {};
   $rootScope.ui.current = {title: 'Settings'};
 
@@ -19,7 +19,7 @@ function($scope, $rootScope, KStorage) {
   };
 
   $scope.clearCache = function() {
-    KStorage.clear();
+    IndexedDBWrapper.clear();
     $rootScope.$emit('flash', gettext('Cache cleared.'));
   };
 
