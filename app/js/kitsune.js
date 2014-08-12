@@ -42,26 +42,51 @@ function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsBlob) {
 
 
 // For now, this hard codes a set of showFor settings.
-yaocho.value('showForSettings', {
-  fx: {
-    enabled: true,
-    platform: 'win8',
-    version: {
-      min: 29,
-      max: 30,
-      slug: 'fx29',
+yaocho.factory('showForSettings', [
+function() {
+  var minVersion = 1.3;
+  var maxVersion = 1.4;
+
+  var fxosRegex = /Mozilla\/5.0 \((Mobile|Tablet);( .*;)? rv:([\d\.]+(.*;)?)\) Gecko\/[\d\.]+ Firefox\/[\d\.]+/i;
+  var match = window.navigator.userAgent.match(fxosRegex);
+
+  if (match) {
+    var geckoVersion = match[3];
+    var fxosVersionMap = {
+      '18.0': [1.0, 1.1],
+      '18.1': [1.1, 1.2],
+      '26.0': [1.2, 1.3],
+      '28.0': [1.3, 1.4],
+      '30.0': [1.4, 2.0],
+      '32.0': [2.0, 3.0],
+    };
+    minVersion = fxosVersionMap[geckoVersion][0];
+    maxVersion = fxosVersionMap[geckoVersion][1];
+  }
+
+  console.log('Detected fxos v' + minVersion);
+
+  return {
+    fx: {
+      enabled: true,
+      platform: 'win8',
+      version: {
+        min: 29,
+        max: 30,
+        slug: 'fx29',
+      },
     },
-  },
-  fxos: {
-    enabled: true,
-    platform: 'web',
-    version: {
-      min: 1.3,
-      max: 1.4,
-      slug: 'fxos1.3',
+    fxos: {
+      enabled: true,
+      platform: 'web',
+      version: {
+        min: minVersion,
+        max: maxVersion,
+        slug: 'fxos' + minVersion,
+      },
     },
-  },
-});
+  };
+}]);
 
 
 yaocho.directive('for', ['showForSettings',
@@ -100,23 +125,25 @@ function(showForSettings) {
         }
 
       } else {
-        var regexMatch = /^(=|>=)([^\d]+)([\d\.]*)$/.exec(part);
-        if (regexMatch && showForSettings[regexMatch[2]]) {
-          browserFound = true;
-          var op = regexMatch[1]
-          var browserCode = regexMatch[2];
+        var regexMatch = /^(=|>=)?([^\d]+)([\d\.]*)$/.exec(part);
+        if (regexMatch) {
+          var op = regexMatch[1] || '';
+          var browser = regexMatch[2];
           var version = parseFloat(regexMatch[3]);
 
-          var settings = showForSettings[browserCode];
-          if (settings.enabled) {
+          if (op !== '' && op !== '>=' && op !== '=') {
+            console.warn('Unknown showfor op:', op);
+          }
 
-            if ((op === '>=' || op == '') && settings.version.min <= version) {
-              browserMatch = true;
-            } else if (op === '=' && settings.version.min <= version && settings.version.max > version) {
-              browserMatch = true;
-            }
-            if (op !== '>=' && op !== '=') {
-              console.warn('Unknown showfor op:', op);
+          if (allBrowsers.indexOf(browser) >= 0) {
+            browserFound = true;
+            var settings = showForSettings[browser];
+            if (settings.enabled) {
+              if ((op === '>=' || op === '') && settings.version.min >= version) {
+                browserMatch = true;
+              } else if (op === '=' && settings.version.min >= version && settings.version.max < version) {
+                browserMatch = true
+              }
             }
           }
         }
