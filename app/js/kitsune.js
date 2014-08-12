@@ -139,10 +139,12 @@ function(showForSettings) {
             browserFound = true;
             var settings = showForSettings[browser];
             if (settings.enabled) {
-              if ((op === '>=' || op === '') && settings.version.min >= version) {
+              if (isNaN(version)) {
                 browserMatch = true;
-              } else if (op === '=' && settings.version.min >= version && settings.version.max < version) {
-                browserMatch = true
+              } else if ((op === '>=' || op === '') && settings.version.min >= version) {
+                browserMatch = true;
+              } else if (op === '=' && settings.version.min === version) {
+                browserMatch = true;
               }
             }
           }
