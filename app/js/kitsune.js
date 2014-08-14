@@ -2,10 +2,10 @@
 
 var yaocho = angular.module('yaocho');
 
-// yaocho.value('kitsuneBase', 'http://kitsune');
+// yaocho.value('kitsuneBase', 'http://kitsune/');
 yaocho.value('kitsuneBase', 'https://support.mozilla.org/');
-// yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
-// yaocho.value('kitsuneBase', 'https://support.allizom.org');
+// yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com/');
+// yaocho.value('kitsuneBase', 'https://support.allizom.org/');
 
 
 yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase', 'KStorage', 'safeApply', 'downloadImageAsBlob',

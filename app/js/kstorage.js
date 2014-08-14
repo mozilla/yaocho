@@ -6,14 +6,14 @@ yaocho.service('KStorage', ['$rootScope', '$injector', 'updateObject',
 function($rootScope, $injector, updateObject) {
 
   var fetchMethodsForType = {
-    document: ['fromCache', 'documentFromNetwork', 'lol'],
-    image: ['fromCache', 'imageFromNetwork', 'lol'],
-    topic: ['fromCache', 'topicFromNetwork', 'lol'],
+    document: ['fromCache', 'documentFromNetwork'],
+    image: ['fromCache', 'imageFromNetwork'],
+    topic: ['fromCache', 'topicFromNetwork'],
   };
 
-  this.getObject = function(key) {
+  this.getObject = function(key, fetchMethods) {
     var type = key.split(':')[0];
-    var fetchMethods = fetchMethodsForType[type];
+    fetchMethods = fetchMethods || fetchMethodsForType[type];
     if (fetchMethods === undefined) {
       throw new Error('Unknown KStorage type: ' + type);
     }
@@ -189,7 +189,7 @@ function() {
           var cursor = ev.target.result;
           // Check to make sure the cursor isn't null.
           if (cursor) {
-            results.push(cursor.value.value);
+            results.push(cursor.value);
             cursor.continue();
           } else {
             // num of objectType do not exist.

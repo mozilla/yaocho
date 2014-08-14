@@ -21,25 +21,61 @@ function($rootScope, $scope, $routeParams, KStorage) {
   $rootScope.ui.current = $scope.topic;
 }]);
 
-yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune', 'KitsuneCorpus', 'KStorage', 'cacheTopic', 'IndexedDbWrapper',
-function($rootScope, $scope, $location, Kitsune, KitsuneCorpus, KStorage, cacheTopic, IndexedDbWrapper) {
+yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', '$location', 'Kitsune', 'KStorage', 'cacheTopic', 'IndexedDbWrapper',
+function($rootScope, $scope, $location, Kitsune, KStorage, cacheTopic, IndexedDbWrapper) {
   if ($location.path() === "/") {
     // Minimum cached docs to not display caching suggestion.
     var minCached = 5;
+    var product = $rootScope.settings.product.slug;
 
     $scope.update = function() {
       $scope.showCacheUpdate = false;
       $rootScope.loading = true;
 
-      var productSlug = $rootScope.settings.product.slug;
-      KStorage.fuzzySearchObjects('topic:')
-      .then(function(topics) {
-        return Promise.all(topics.map(cacheTopic));
-      })
+      var queue = [{type: 'topic', slug: ''}];
+
+      function downloadNext() {
+        var next = queue.shift();
+        return new Promise(function(resolve, reject) {
+          if (next.type === 'topic') {
+            KStorage.getObject('topic:' + product + '/' + next.slug, ['topicFromNetwork'])
+            .then(function(topic) {
+              topic.documents.forEach(function(st) {
+                queue.push({type: 'document', slug: st.slug});
+              });
+              topic.subtopics.forEach(function(st) {
+                queue.push({type: 'topic', slug: st.slug});
+              });
+              resolve();
+            })
+
+          } else if (next.type === 'document') {
+            KStorage.getObject('document:' + next.slug, ['documentFromNetwork'])
+            .then(function() {
+              resolve();
+            });
+
+          } else {
+            reject(new Error('Unknown object type "' + next.type + '" when downloading objects.'));
+          }
+        })
+        .then(function() {
+          if (queue.length) {
+            return downloadNext();
+          }
+        });
+      }
+
+      return downloadNext()
       .then(function() {
+        $rootScope.$apply(function() {
           var finishMsg = gettext("Documents finished downloading.");
           $rootScope.loading = false;
           $rootScope.$emit('flash', finishMsg);
+        });
+      })
+      .catch(function(err) {
+        console.error(err);
       });
     };
 
