@@ -1,8 +1,8 @@
 <ul class="browser-list">
-  <li class="topic" ng-repeat="topic in subtopics">
-    <alink view="TopicBrowser" topic="{{ topic.slug }}" text="{{ topic.title }}" />
+  <li class="topic" ng-repeat="t in topic.subtopics">
+    <alink view="TopicBrowser" topic="{{ t.slug }}" text="{{ t.title }}" />
   </li>
-  <li class="document" ng-repeat="doc in documents">
-    <alink view="DocumentView" topic="{{ topicPath }}" slug="{{ doc.slug }}" text="{{ doc.title }}" />
+  <li class="document" ng-repeat="d in topic.documents">
+    <alink view="DocumentView" slug="{{ d.slug }}" text="{{ d.title }}" />
   </li>
 </ul>

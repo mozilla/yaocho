@@ -13,53 +13,8 @@ function safeApply($rootScope) {
       }
     } else {
       $rootScope.$apply(fn);
-    };
+    }
   };
-}]);
-
-yaocho.factory('updateCache', ['$rootScope', 'KitsuneCorpus', 'KStorage', 'cacheTopic',
-function updateCache($rootScope, KitsuneCorpus, KStorage, cacheTopic) {
-  return function() {
-    // In case it's being shown.
-    $rootScope.showCacheUpdate = false;
-    $rootScope.loading = true;
-
-    var product = $rootScope.settings.product.slug;
-    var key = 'subtopics:' + null;
-    KitsuneCorpus.getSubTopicPromise(key, product)
-    .then(function() {
-      return KStorage.fuzzySearchObjects('topic:')
-    })
-    .then(function(topics) {
-      return Promise.all(topics.map(cacheTopic));
-    })
-    .then(function() {
-      var finishMsg = gettext("Documents finished downloading.");
-      $rootScope.loading = false;
-      $rootScope.$emit('flash', finishMsg);
-    });
-  }
-}]);
-
-yaocho.factory('cacheTopic', ['Kitsune', 'KitsuneCorpus', 'KStorage', '$rootScope', 
-function cacheTopic(Kitsune, KitsuneCorpus, KStorage, $rootScope) {
-  return function(topic) {
-    return Kitsune.documents.all({
-      product: $rootScope.settings.product.slug,
-      topic: topic.slug,
-    })
-    .then(function(docs) {
-      var promises = [];
-      var docKeys = docs.map(function(doc) {
-          // Cache the doc while we're at it!
-          promises.push(KitsuneCorpus.getDoc(doc.slug));
-          return 'document:' + doc.slug;
-      })
-      var key = 'documents:' + topic.slug
-      promises.push(KStorage.putSet(key, docKeys));
-      return Promise.all(promises);
-    });
-  }
 }]);
 
 yaocho.factory('bindPromise', ['safeApply',
@@ -121,6 +76,19 @@ function() {
       };
 
       xhr.send();
+    });
+  };
+}]);
+
+yaocho.factory('updateObject', ['safeApply',
+function(safeApply) {
+  return function update(target, from) {
+    safeApply(function() {
+      for (var key in from) {
+        if (key.indexOf('$') === 0) continue;
+        if (!from.hasOwnProperty(key)) continue;
+        target[key] = from[key];
+      }
     });
   };
 }]);

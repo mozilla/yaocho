@@ -1,7 +1,14 @@
 {
+  "browser": true,
+  "devel": true,
   "globalstrict": true,
+  "loopfunc": true,
+  "sub": true,
+
   "globals": {
+    "_": false,
     "angular": false,
-    "Promise": false,
+    "gettext": false,
+    "Promise": false
   }
 }

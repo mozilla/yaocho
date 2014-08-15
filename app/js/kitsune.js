@@ -2,10 +2,10 @@
 
 var yaocho = angular.module('yaocho');
 
-// yaocho.value('kitsuneBase', 'http://kitsune');
+// yaocho.value('kitsuneBase', 'http://kitsune/');
 yaocho.value('kitsuneBase', 'https://support.mozilla.org/');
-// yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com');
-// yaocho.value('kitsuneBase', 'https://support.allizom.org');
+// yaocho.value('kitsuneBase', 'http://mythmon-kitsune.ngrok.com/');
+// yaocho.value('kitsuneBase', 'https://support.allizom.org/');
 
 
 yaocho.directive('wikiImage', ['$rootScope', 'kitsuneBase', 'KStorage', 'safeApply', 'downloadImageAsBlob',
@@ -25,11 +25,6 @@ function($rootScope, kitsuneBase, KStorage, safeApply, downloadImageAsBlob) {
 
       var key = 'image:' + path;
       KStorage.getObject(key)
-      .catch(function() {
-        var p = downloadImageAsBlob(kitsuneBase + path)
-        p.then(KStorage.putObject.bind(KStorage, key));
-        return p;
-      })
       .then(function(imageData) {
         element.attr('src', URL.createObjectURL(imageData));
       })
@@ -116,7 +111,8 @@ function(showForSettings) {
       if (allPlatforms.indexOf(part) >= 0) {
         platformFound = true;
         if (part == 'win') {
-          platformMatch = platformMatch || !!enabledPlatforms['win'] ||
+          platformMatch = platformMatch ||
+                          !!enabledPlatforms['win'] ||
                           !!enabledPlatforms['winxp'] ||
                           !!enabledPlatforms['win7'] ||
                           !!enabledPlatforms['win8'];
@@ -153,9 +149,9 @@ function(showForSettings) {
     });
 
     /* This implements the right logic of:
-     * If any browsers are found, they must all match.
-     * If any platform is found, they must all match.
-     * If nothing is found, it will be shown.
+     *   - If any browsers are found, they must all match.
+     *   - If any platform is found, they must all match.
+     *   - If nothing is found, it will be shown.
      */
     var match = (browserMatch && !platformFound) ||
                 (platformMatch && !browserFound) ||
@@ -235,7 +231,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
         if (!obj2.hasOwnProperty(key)) continue;
         obj1[key] = obj2[key];
       }
-    })
+    });
   }
 
   this.getTopic = function(topicSlug) {
@@ -257,7 +253,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       var key = 'topic:' + product + '/' + topicSlug;
       KStorage.getObject(key, ['title'])
       .catch(function() {
-        var p = Kitsune.topics.one(product, topicSlug)
+        var p = Kitsune.topics.one(product, topicSlug);
         p.then(function(val) {
           KStorage.putObject(key, _.pick(topic, topicKeys));
         });
@@ -296,11 +292,11 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       if (key === null) {
         key = '/';
       }
-      var key = 'subtopics:' + key;
-      var keys = subtopics.map(function(st) {
+      var parentKey = 'subtopics:' + key;
+      var subTopicKeys = subtopics.map(function(st) {
         return 'topic:' + st.product + '/' + st.slug;
       });
-      promises.push(KStorage.putSet(key, keys));
+      promises.push(KStorage.putSet(parentKey, subTopicKeys));
     }
 
     return Promise.all(promises);
@@ -331,8 +327,8 @@ function($rootScope, Kitsune, KStorage, safeApply) {
       safeApply(function() {
         newSubtopics.forEach(function(subtopic) {
           subtopics.push(subtopic);
-        })
-      })
+        });
+      });
     }
 
     var key = 'subtopics:' + parent;
@@ -342,7 +338,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
     })
     .catch(function(err) {
       console.error('getSubTopics error', 'key=' + key, err);
-    })
+    });
 
     return subtopics;
   };
@@ -379,7 +375,7 @@ function($rootScope, Kitsune, KStorage, safeApply) {
         topic: slug,
       });
       p.then(updateCacheDocs.bind(null, key));
-      return p
+      return p;
     })
     .then(function(val) {
       addDocs(val);
