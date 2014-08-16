@@ -58,9 +58,9 @@ nav .title {
 nav .menu-button {
   background: url(/img/gear.png) no-repeat center / 20px;
   cursor: pointer;
+  flex: 0 0 32px;
   overflow: hidden;
   width: 32px;
-  flex: 0 0 32px;
 }
 
 a {
@@ -124,27 +124,35 @@ dl dd {
   padding: 0;
 }
 
-.flash {
-  background: #CD6723;
+.flashes {
   bottom: 0;
-  font-size: 1.2em;
   left: 0;
-  max-height: 80vh;
-  overflow-x: none;
-  overflow-y: auto;
-  padding: 1.5vh 5vw;
+  list-style: none;
+  margin: 0;
+  padding: 0;
   position: fixed;
   right: 0;
 }
 
-.loading {
-  background: url(/img/loading.gif) no-repeat center;
-  bottom: 10px;
-  left: 0;
-  max-height: 80vh;
-  overflow-x: none;
-  overflow-y: auto;
+.flashes li {
+  font-size: 1.2em;
   padding: 1.5vh 5vw;
-  position: fixed;
-  right: 0;
+  margin-top: 1px;
+  background-color: #2C393B;
+  color: #EAEAE7;
+}
+
+.flashes .loading .bar {
+  width: 100%;
+  height: 25px;
+  margin: auto 0;
+  background: #B2F2FF;
+}
+
+.flashes .loading .bar .inner {
+  height: 100%;
+  background: #00AACC;
+  white-space: nowrap;
+  color: #333;
+  padding: 0 10px;
 }

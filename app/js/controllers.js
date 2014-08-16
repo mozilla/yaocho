@@ -23,7 +23,7 @@ function($rootScope, $scope, $routeParams, KStorage) {
 
 yaocho.controller('CacheDownloadCtrl', ['$rootScope', '$scope', 'IndexedDbWrapper', 'cacheAll',
 function($rootScope, $scope, IndexedDbWrapper, cacheAll) {
-    // Minimum cached docs to not display caching suggestion.
+  // Minimum cached docs to not display caching suggestion.
   var minCached = 5;
   var product = $rootScope.settings.product.slug;
 
@@ -31,10 +31,6 @@ function($rootScope, $scope, IndexedDbWrapper, cacheAll) {
     $scope.showCacheUpdate = false;
     cacheAll();
   };
-
-  $scope.hideCacheUpdate = function() {
-    $rootScope.showCacheUpdate = false;
-  }
 
   IndexedDbWrapper.numObjectsExist('document', minCached)
   .then(function(exists) {

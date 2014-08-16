@@ -98,8 +98,9 @@ yaocho.factory('cacheAll', ['$rootScope', 'KStorage',
 function($rootScope, KStorage) {
 
   return function() {
+    console.log('Caching all topics and documents.')
     var queue = [{type: 'topic', slug: ''}];
-    $rootScope.$emit('loading.incr');
+    $rootScope.$emit('loading.incr', 'Downloading articles');
     var product = $rootScope.settings.product.slug;
 
     function downloadNext() {
@@ -141,12 +142,14 @@ function($rootScope, KStorage) {
     .then(function() {
       $rootScope.$apply(function() {
         var finishMsg = gettext("Documents finished downloading.");
-        $rootScope.loading = false;
         $rootScope.$emit('flash', finishMsg);
+        $rootScope.$emit('loading.flush');
       });
     })
     .catch(function(err) {
-      $rootScope.$emit('loading.flush');
+      $rootScope.$apply(function() {
+        $rootScope.$emit('loading.flush');
+      });
       console.error(err);
     });
   };

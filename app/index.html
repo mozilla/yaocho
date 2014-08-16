@@ -22,17 +22,27 @@
 
   <div ng-view></div>
 
-  <div class="flash" ng-controller="CacheDownloadCtrl" ng-show="showCacheUpdate">
-    {{ confirmMessage }}
-    <input type="button" value="{{ yesMsg }}" ng-click="updateCache()"/>
-    <input type="button" value="{{ noMsg }}" ng-click="hideCacheUpdate()"/>
-  </div>
+  <ul class="flashes" ng-controller="FlashCtrl">
+    <li class="message" ng-controller="CacheDownloadCtrl" ng-show="showCacheUpdate">
+      {{ confirmMessage }}
+      <input type="button" value="{{ yesMsg }}" ng-click="update()"/>
+      <input type="button" value="{{ noMsg }}" ng-click="showCacheUpdate = false"/>
+    </li>
 
-  <div class="loading"  ng-show="loading"></div>
+    <li class="loading" ng-controller="LoadingCtrl" ng-show="total > 0">
+      <span>{{ message }}</span>
+      <img src="/img/loading.gif" ng-show="total === 1">
+      <div class="bar" ng-show="total > 2 && total > loaded">
+        <div class="inner" ng-style="{width: (loaded / total) * 100 + '%'}">
+          {{ loaded }} / {{ total }}
+        </div>
+      </div>
+    </li>
 
-  <div class="flash" ng-controller="FlashCtrl" ng-hide="message.trim() === ''">
-    {{ message }}
-  </div>
+    <li class="message" ng-repeat="msg in messages">
+      {{ msg }}
+    </li>
+  </ul>
 
   <script src="/bower_components/lodash/dist/lodash.js"></script>
   <script src="/bower_components/es6-promise/promise.js"></script>

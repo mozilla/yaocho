@@ -30,14 +30,47 @@ function($scope, $rootScope) {
 
 yaocho.controller('FlashCtrl', ['$scope', '$rootScope', '$timeout',
 function($scope, $rootScope, $timeout) {
-  $scope.message = '';
+  $scope.messages = [];
 
   $rootScope.$on('flash', function(ev, message) {
-    $scope.message = message;
+    $scope.messages.push(message);
     $timeout(function() {
-      $scope.message = '';
+      var index = $scope.messages.indexOf(message);
+      if (index >= 0) {
+        $scope.messages.splice(index, 1);
+      }
     }, 5000)
   })
+}]);
+
+yaocho.controller('LoadingCtrl', ['$scope', '$rootScope',
+function($scope, $rootScope) {
+  $scope.total = 0;
+  $scope.loaded = 0;
+  $scope.message = null;
+
+  $rootScope.$on('loading.incr', function(ev, message) {
+    if (message) {
+      $scope.message = message;
+    }
+    $scope.total++;
+  });
+
+  $rootScope.$on('loading.decr', function(ev, count) {
+    $scope.loaded++;
+    if ($scope.loaded > $scope.total) {
+      console.error('More things finished loading than started loading.');
+    }
+  });
+
+  $rootScope.$on('loading.flush', function(ev) {
+    if ($scope.loaded !== $scope.total) {
+      console.error('Loading flush when not everything was loaded.');
+    }
+    $scope.total = 0;
+    $scope.loaded = 0;
+    $scope.message = null;
+  });
 }]);
 
 yaocho.directive('alink', ['urlManager', '$location', 'safeApply',
