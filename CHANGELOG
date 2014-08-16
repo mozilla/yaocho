@@ -1,0 +1,15 @@
+Version 0.4
+* Progress bar when mass downloading articles.
+* New cache and server backends.
+
+Version 0.3
+* Articles customized to Firefox OS version.
+* Download all articles with a single press.
+
+Version 0.2
+* Localization support.
+
+Version 0.1
+* Initial release
+* Browse articles from Mozilla Support
+* Caches articles once seen.
