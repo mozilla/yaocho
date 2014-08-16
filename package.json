@@ -16,6 +16,7 @@
     "gulp-html-src": "^0.2.0",
     "gulp-l10n-extract": "^0.2.0",
     "gulp-rename": "^1.2.0",
+    "gulp-replace": "^0.4.0",
     "gulp-rm": "^0.2.0",
     "gulp-rsvg": "^0.2.4",
     "gulp-webserver": "^0.3.4",

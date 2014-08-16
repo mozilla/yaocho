@@ -15,6 +15,7 @@ var header = require('gulp-header');
 var htmlSrc = require('gulp-html-src');
 var l10nExtract = require('gulp-l10n-extract');
 var rename = require('gulp-rename');
+var replace = require('gulp-replace');
 var rm = require('gulp-rm');
 var rsvg = require('gulp-rsvg');
 var webserver = require('gulp-webserver');
@@ -36,7 +37,7 @@ gulp.task('build.img.logo', function() {
   }));
 });
 
-gulp.task('build.img', ['build.img.logo', 'build.img.copy'], function() {
+gulp.task('build.img', ['build.img.logo', 'build.img.copy', 'build.info'], function() {
   return gulp.src('./app/img/gear.svg')
     .pipe(rsvg())
     .pipe(gulp.dest('./dist/img/'));
@@ -63,6 +64,15 @@ gulp.task('build.copy', function() {
     gulp.src(['app/index.html', 'app/manifest.webapp'])
       .pipe(gulp.dest('dist/'))
   );
+});
+
+gulp.task('build.info', ['build.copy'], function() {
+  var manifest = JSON.parse(fs.readFileSync('app/manifest.webapp'));
+  return gulp.src('app/partials/settings.html')
+    .pipe(replace(/\$([A-Z]+)/g, function(orig, ident) {
+      return manifest[ident.toLowerCase()] || orig;
+    }))
+    .pipe(gulp.dest('dist/partials/'));
 });
 
 gulp.task('package', ['build', 'l10n.get'], function() {
