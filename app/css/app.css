@@ -80,7 +80,6 @@ dl dd {
 
 .browser-list li {
   border-bottom: 1px dotted #2C393B;
-  padding: 0.4em 0.5em;
 }
 
 .browser-list .topic {
@@ -89,6 +88,8 @@ dl dd {
 
 .browser-list li a {
   color: #000;
+  padding: 0.4em 0.5em;
+  display: block;
 }
 
 .sumo-document {
