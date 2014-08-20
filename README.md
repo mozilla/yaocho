@@ -3,6 +3,8 @@
 Yaocho is an offline enabled open webapp to view knowledge base articles from
 Mozilla Support.
 
+You can download it from Firefox Marketplace at https://marketplace.firefox.com/app/mozilla-help .
+
 ## TL;DR
 
 ```
