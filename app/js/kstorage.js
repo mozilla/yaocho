@@ -7,7 +7,7 @@ function($rootScope, $injector, updateObject) {
 
   var fetchMethodsForType = {
     document: ['fromCache', 'documentFromNetwork'],
-    image: ['fromCache', 'imageFromNetwork'],
+    image: ['fromCache', 'imagesFromIncludes', 'imageFromNetwork'],
     topic: ['fromCache', 'topicFromNetwork'],
   };
 
@@ -44,6 +44,12 @@ function($rootScope, $injector, updateObject) {
     fromCache: function(key) {
       var idb = $injector.get('IndexedDbWrapper');
       return idb.getObject(key);
+    },
+
+    imageFromIncludes: function(key) {
+      var downloadImageAsBlob = $injector.get('downloadImageAsBlob');
+      var path = key.split(':')[1];
+      return downloadImageAsBlob('/includes/image' + path);
     },
 
     documentFromNetwork: function(key) {
