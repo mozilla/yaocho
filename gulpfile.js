@@ -8,7 +8,6 @@ var request = require('request');
 var vinyl = require('vinyl');
 
 var concat = require('gulp-concat');
-var download = require('gulp-download');
 var es = require('event-stream');
 var gulp = require('gulp');
 var header = require('gulp-header');
@@ -135,3 +134,51 @@ gulp.task('l10n.get', function() {
 });
 
 gulp.task('l10n', ['l10n.get', 'l10n.extract']);
+
+gulp.task('includes', ['includes.image']);
+
+gulp.task('includes.image', function() {
+  var maxWidth = 64;
+  var maxHeight = 48;
+  // Fix this when the Gallery API is on prod SUMO.
+  var mediaBase = 'https://support.cdn.mozilla.net';
+  var apiUrl = 'http://kitsune/api/1/gallery/image/' +
+    '?width__lte=' + maxWidth + '&height__lte=' + maxHeight +
+    '&width__gt=1&height__gt=1';
+
+  // A readable stream that emits urls from sumo's gallery.
+  return es.readable(function(count, callback) {
+    var emit = this.emit.bind(this);
+    if (apiUrl === null) {
+      emit('end');
+      return;
+    }
+    request(apiUrl, {method: 'GET'}, function(error, response, body) {
+      if (error) {
+        console.error('error', error);
+        return callback(error);
+      }
+      var data;
+      try {
+        data = JSON.parse(body);
+      } catch (e) {
+        console.error('error', e);
+        return callback(e);
+      }
+      apiUrl = data.next;
+      data.results.forEach(function(img) {
+        emit('data', img.url);
+      });
+      callback();
+    });
+  })
+  // Now download every file
+  .pipe(es.through(function(url) {
+    var file = new vinyl({
+      path: path.join('image', url.slice(1)),
+      contents: request.get(mediaBase + url),
+    });
+    this.emit('data', file);
+  }))
+  .pipe(gulp.dest('dist/includes'));
+});
