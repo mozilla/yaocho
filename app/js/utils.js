@@ -65,7 +65,10 @@ function() {
       xhr.open("GET", url, true);
       xhr.responseType = "arraybuffer";
 
-      xhr.onload = function(e) {
+      xhr.onload = function(res) {
+        if (this.status >= 400) {
+          return reject(this.status);
+        }
         var arrayBufferView = new Uint8Array(this.response);
         var blob = new Blob([arrayBufferView], {type: "image/png"});
         resolve(blob);
