@@ -76,7 +76,7 @@ gulp.task('build.info', ['build.copy'], function() {
     .pipe(gulp.dest('dist/partials/'));
 });
 
-gulp.task('package', ['build', 'l10n.get'], function() {
+gulp.task('package', ['build', 'l10n.get', 'includes'], function() {
   gulp.src('dist/**/*')
     .pipe(zip('yaocho.zip'))
     .pipe(gulp.dest('.'));
