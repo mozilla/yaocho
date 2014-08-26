@@ -1,9 +1,10 @@
-var fs = require('fs.extra');
+var fs = require('fs');
 var path = require('path');
 
 var acorn = require('acorn');
 var acornWalk = require('acorn/util/walk');
 var historyApiFallback = require('connect-history-api-fallback');
+var mkdirp = require('mkdirp');
 var nomnom = require('nomnom');
 var request = require('request');
 var vinyl = require('vinyl');
@@ -82,7 +83,7 @@ gulp.task('package', ['build', 'l10n.get'], function() {
 });
 
 gulp.task('clean', function() {
-  gulp.src(['./dist/**/*', './yaocho.zip'], {read: false})
+  return gulp.src(['./dist/**/*', './yaocho.zip'], {read: false})
     .pipe(rm());
 });
 
@@ -158,33 +159,29 @@ gulp.task('includes.image', function() {
     }
     request(apiUrl, {method: 'GET'}, function(error, response, body) {
       if (error) {
-        return callback(error);
+        callback(error);
+      } else {
+        var data;
+        try {
+          data = JSON.parse(body);
+        } catch (e) {
+          return callback(e);
+        }
+        apiUrl = data.next;
+        data.results.forEach(function(img) {
+          emit('data', img.url);
+        });
+        callback();
       }
-      var data;
-      try {
-        data = JSON.parse(body);
-      } catch (e) {
-        return callback(e);
-      }
-      apiUrl = data.next;
-      data.results.forEach(function(img) {
-        emit('data', img.url);
-      });
-      callback();
     });
   })
   // Now download every file
-  .pipe(es.map(function throughData(url, cb) {
-    request(mediaBase + url, {method: 'GET'}, function(error, response, body) {
-      if (error) {
-        cb(error, null);
-      } else {
-        cb(null, new vinyl({
-          path: url.slice(1),
-          contents: new Buffer(body),
-        }));
-      }
+  .pipe(es.map(function(url, cb) {
+    var dir = path.join('dist/includes/image', path.dirname(url.slice(1)));
+    mkdirp(dir, function() {
+      var output = fs.createWriteStream('dist/includes/image' + url);
+      request(mediaBase + url, {method: 'GET'}).pipe(output);
+      cb();
     });
-  }))
-  .pipe(gulp.dest('dist/includes/image'));
+  }));
 });
