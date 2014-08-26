@@ -150,19 +150,16 @@ gulp.task('includes.image', function() {
   return es.readable(function(count, callback) {
     var emit = this.emit.bind(this);
     if (apiUrl === null) {
-      emit('end');
-      return;
+      return emit('end');
     }
     request(apiUrl, {method: 'GET'}, function(error, response, body) {
       if (error) {
-        console.error('error', error);
         return callback(error);
       }
       var data;
       try {
         data = JSON.parse(body);
       } catch (e) {
-        console.error('error', e);
         return callback(e);
       }
       apiUrl = data.next;
@@ -173,12 +170,17 @@ gulp.task('includes.image', function() {
     });
   })
   // Now download every file
-  .pipe(es.through(function(url) {
-    var file = new vinyl({
-      path: path.join('image', url.slice(1)),
-      contents: request.get(mediaBase + url),
+  .pipe(es.map(function throughData(url, cb) {
+    request(mediaBase + url, {method: 'GET'}, function(error, response, body) {
+      if (error) {
+        cb(error, null);
+      } else {
+        cb(null, new vinyl({
+          path: url.slice(1),
+          contents: new Buffer(body),
+        }));
+      }
     });
-    this.emit('data', file);
   }))
-  .pipe(gulp.dest('dist/includes'));
+  .pipe(gulp.dest('dist/includes/image'));
 });
