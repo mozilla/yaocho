@@ -3,11 +3,13 @@ var path = require('path');
 
 var acorn = require('acorn');
 var acornWalk = require('acorn/util/walk');
+var historyApiFallback = require('connect-history-api-fallback');
 var nomnom = require('nomnom');
 var request = require('request');
 var vinyl = require('vinyl');
 
 var concat = require('gulp-concat');
+var connect = require('gulp-connect');
 var es = require('event-stream');
 var gulp = require('gulp');
 var header = require('gulp-header');
@@ -17,7 +19,6 @@ var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var rm = require('gulp-rm');
 var rsvg = require('gulp-rsvg');
-var webserver = require('gulp-webserver');
 var zip = require('gulp-zip');
 
 gulp.task('watch', ['build'], function() {
@@ -90,12 +91,15 @@ gulp.task('server', ['build'], function() {
    .option('port', {default: 8000})
    .option('host', {default: 'localhost'})
    .parse();
-  gulp.src('dist')
-    .pipe(webserver({
-      host: args.host,
-      port: args.port,
-      fallback: 'index.html',
-    }));
+
+  connect.server({
+    root: 'dist',
+    host: args.host,
+    port: args.port,
+    middleware: function(connect, opt) {
+      return [historyApiFallback];
+    },
+  });
 });
 
 gulp.task('dev', ['build', 'watch', 'server']);
