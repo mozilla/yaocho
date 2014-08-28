@@ -125,11 +125,17 @@ function($rootScope, KStorage) {
             });
             resolve();
           })
+          .catch(function(err) {
+            reject(err);
+          });
 
         } else if (next.type === 'document') {
           KStorage.getObject('document:' + next.slug, ['documentFromNetwork'])
           .then(function() {
             resolve();
+          })
+          .catch(function(err) {
+            reject(err);
           });
 
         } else {
@@ -141,6 +147,12 @@ function($rootScope, KStorage) {
         if (queue.length) {
           return downloadNext();
         }
+      })
+      .catch(function(err) {
+        var errMsg = gettext("Network Error.");
+        $rootScope.$emit('flash', errMsg);
+        $rootScope.$emit('loading.flush');
+        reject(err);
       });
     }
 
