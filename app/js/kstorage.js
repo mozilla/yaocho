@@ -126,7 +126,7 @@ function($rootScope, KStorage) {
             resolve();
           })
           .catch(function(err) {
-            reject(new Error('Network Error.'));
+            reject(err);
           });
 
         } else if (next.type === 'document') {
@@ -135,7 +135,7 @@ function($rootScope, KStorage) {
             resolve();
           })
           .catch(function(err) {
-            reject(new Error('Network Error.'));
+            reject(err);
           });
 
         } else {
