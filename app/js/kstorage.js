@@ -93,9 +93,6 @@ function($rootScope, $injector, updateObject) {
         doc = _.pick(doc, topicKeys);
         idb.putObject(key, doc);
         return doc;
-      })
-      .catch(function(err) {
-        throw err;
       });
     },
   };
@@ -172,7 +169,6 @@ function($rootScope, KStorage) {
         $rootScope.$emit('loading.flush');
       });
       console.error(err);
-      throw err;
     });
   };
 }]);
