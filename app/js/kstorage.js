@@ -93,6 +93,9 @@ function($rootScope, $injector, updateObject) {
         doc = _.pick(doc, topicKeys);
         idb.putObject(key, doc);
         return doc;
+      })
+      .catch(function(err) {
+        throw err;
       });
     },
   };
@@ -125,11 +128,17 @@ function($rootScope, KStorage) {
             });
             resolve();
           })
+          .catch(function(err) {
+            reject(new Error('Network Error.'));
+          });
 
         } else if (next.type === 'document') {
           KStorage.getObject('document:' + next.slug, ['documentFromNetwork'])
           .then(function() {
             resolve();
+          })
+          .catch(function(err) {
+            reject(new Error('Network Error.'));
           });
 
         } else {
@@ -141,6 +150,12 @@ function($rootScope, KStorage) {
         if (queue.length) {
           return downloadNext();
         }
+      })
+      .catch(function(err) {
+        var errMsg = gettext("Network Error.");
+        $rootScope.$emit('flash', errMsg);
+        $rootScope.$emit('loading.flush');
+        reject(err);
       });
     }
 
@@ -157,6 +172,7 @@ function($rootScope, KStorage) {
         $rootScope.$emit('loading.flush');
       });
       console.error(err);
+      throw err;
     });
   };
 }]);
